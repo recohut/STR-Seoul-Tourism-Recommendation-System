@@ -1,18 +1,17 @@
 import os
 import random
 import torch
+import warnings
 from torch.utils.data import DataLoader
 import torch.optim as optim
 from parser import args
-import numpy
-import pandas
 from utils import Tourism, Preprocessing, Input_Dataset
 from datetime import datetime
 from model.MF import MatrixFactorization
 from criterion import RMSELoss
 from train import train
 
-warnings.filterwarnings('ignore')
+
 
 # check device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -22,6 +21,8 @@ print(f'device: {device}')
 if device == 'cuda':
     print(f'Current cuda device: {torch.cuda.current_device()}')
     print(f'Count of using GPUs: {torch.cuda.device_count()}')
+
+warnings.filterwarnings('ignore')
 
 # argparse dosen't support boolean type
 save_model = True if args.save_model == 'True' else False
@@ -56,6 +57,7 @@ model = MatrixFactorization(num_dayofweek = num_dayofweek,
                              num_dim=8,
                              num_factor=32,)
 
+model.to(device)
 optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 criterion = RMSELoss()
 
