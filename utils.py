@@ -29,7 +29,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, QuantileTransfor
 '''
 
 class Preprocessing():
-    def __init__(self, shuffle):
+    def __init__(self, shuffle=True):
         self.shuffle = shuffle
         self.merged_df, self.destination_id_name_df = self.read_dataset()
 
@@ -43,13 +43,14 @@ class Preprocessing():
         return merged_df, destination_id_name_df
 
     def get_num(self):
-        num_destination = self.merged_df['destination'].max()+1
-        num_time = self.merged_df['time'].max()+1
-        num_sex = self.merged_df['sex'].max()+1
-        num_age = self.merged_df['age'].max()+1
-        num_dayofweek = self.merged_df['dayofweek'].max()+1
-        num_month = self.merged_df['month'].max()+1
-        num_day = self.merged_df['day'].max()+1
+        merged_df = self.merged_df.copy()
+        num_destination = merged_df['destination'].max()+1
+        num_time = merged_df['time'].max()+1
+        num_sex = merged_df['sex'].max()+1
+        num_age = merged_df['age'].max()+1
+        num_dayofweek = merged_df['dayofweek'].max()+1
+        num_month = merged_df['month'].max()+1
+        num_day = merged_df['day'].max()+1
         return num_destination, num_time, num_sex, num_age, num_dayofweek, num_month, num_day
 
     def preprocessing(self):
@@ -67,7 +68,7 @@ class Preprocessing():
         df2020[['congestion_1','congestion_2']] = 1/df2020[['congestion_1','congestion_2']]
 
         # congestion normalize & train test split
-        if self.shuffle == 0:
+        if self.shuffle == False:
             train_df = df2018
             test_df = df2019
             train_df[['congestion_1','congestion_2']] = scaler.fit_transform(pd.DataFrame(train_df[['congestion_1','congestion_2']]))

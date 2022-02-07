@@ -40,7 +40,7 @@ class CreatingUserId(nn.Module):
             # Embedding weight initialization(normal|uniform)
             for layer in self.Embedding_list:
                 if isinstance(layer,nn.Embedding):
-                    nn.init.normal_(layer)
+                    nn.init.normal_(layer.weight)
 
             # MLP weight initialization
             for layer in self.MLP:
@@ -49,7 +49,7 @@ class CreatingUserId(nn.Module):
 
     def forward(self, dayofweek, time, sex, age, month, day):
         # Embedding
-        dayofweek_embed = self.dayofweek_embedding(dayofweek)
+        dayofweek_embedded = self.dayofweek_embedding(dayofweek)
         time_embedded = self.time_embedding(time)
         sex_embedded = self.sex_embedding(sex)
         age_embedded = self.age_embedding(age)

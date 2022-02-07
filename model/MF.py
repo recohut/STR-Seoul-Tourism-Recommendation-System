@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from UserMLP import CreatingUserId
+from model.UserMLP import CreatingUserId
 
 class MatrixFactorization(nn.Module):
     def __init__(self,
@@ -27,6 +27,16 @@ class MatrixFactorization(nn.Module):
         self.item_embedding = nn.Embedding(num_destination, num_factor)
         nn.init.normal_(self.item_embedding.weight)
 
-    def forward(self, users, items):
-        output = torch.mm(self.user_embedding(users), torch.transpose(self.item_embedding(items),1,2))
+    def forward(self,  dayofweek, time, sex, age, month, day, destination):
+        user_embedding = self.user_embedding(dayofweek, time, sex, age, month, day)
+        item_embedding = self.item_embedding(destination)
+        user_embedding = torch.unsqueeze(user_embedding,1)
+        item_embedding = torch.unsqueeze(item_embedding,1)
+        # print(f'user_embedding: {user_embedding.shape}, item_embedding: {item_embedding.shape}')
+
+        output = torch.bmm(user_embedding,
+                          torch.transpose(item_embedding,1,2))
+        output = torch.squeeze(output)
+
+        # print(f'output shpae: {output.shape}')
         return output
