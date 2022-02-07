@@ -54,7 +54,7 @@ model = MatrixFactorization(num_dayofweek = num_dayofweek,
                              num_month = num_month,
                              num_day = num_day,
                              num_destination = num_destination,
-                             num_dim=8,
+                             num_dim=4,
                              num_factor=32,)
 
 model.to(device)
@@ -62,6 +62,7 @@ optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 criterion = RMSELoss()
 
 if __name__ == '__main__' :
+    print('-------------------Train Start-------------------')
     start_time = datetime.now()
 
     train(model=model,
@@ -74,7 +75,9 @@ if __name__ == '__main__' :
           print_cost=True)
 
     end_time = datatime.now()
+    print('-------------------Train Finished-------------------')
     print(f'Training time : {end_time -start_time}')
+
 
     model_root_dir ='saved_model'
     if not os.path.exists(model_root_dir):
