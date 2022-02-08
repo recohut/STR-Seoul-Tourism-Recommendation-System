@@ -85,4 +85,5 @@ if __name__ == '__main__' :
 
     if save_model:
         MODEL_PATH = os.path.join(FOLDER_PATH, f'MF_{args.epochs}_{args.batch_size}.pth')
-        torch.save(state_dict(), MODEL_PATH)
+        torch.save(model.state_dict(), MODEL_PATH)
+
