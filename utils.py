@@ -92,13 +92,13 @@ class Tourism(Dataset):
     def __init__(self, df):
         super(Tourism, self).__init__()
         self.df = df
-        self.destination, self.time, self.sex, self.age, self.dayofweek, self.month, self.day, self.congestion_1 = self.change_tensor()
+        self.destination, self.time, self.sex, self.age, self.dayofweek, self.month, self.day, self.visitor = self.change_tensor()
 
     def __len__(self):
         return len(self.df)
 
     def __getitem__(self, idx):
-        return self.destination[idx], self.time[idx], self.sex[idx], self.age[idx], self.dayofweek[idx], self.month[idx], self.day[idx], self.congestion_1[idx]
+        return self.destination[idx], self.time[idx], self.sex[idx], self.age[idx], self.dayofweek[idx], self.month[idx], self.day[idx], self.visitor[idx]
 
     def change_tensor(self):
         destination = torch.tensor(list(self.df['destination']))
