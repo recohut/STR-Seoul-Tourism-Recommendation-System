@@ -83,13 +83,6 @@ if __name__ == '__main__' :
     if not os.path.exists(model_root_dir):
         os.mkdir(model_root_dir)
 
-    model_id = random.randrange(1,101)
     if save_model:
-        model_dir = os.path.join(model_root_dir, f'MF_{model_id}+.pth')
-        while (1):
-            if os.path.exists(model_dir):
-                model_id = random.randrange(1, 101)
-                model_dir = os.path.join(model_root_dir, f'MF_{model_id}.pth')
-            else:
-                break
+        model_dir = os.path.join(model_root_dir, f'MF_{args.epochs}_{args.batch_size}.pth')
         torch.save(model, model_dir)
