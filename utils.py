@@ -79,6 +79,7 @@ class Preprocessing():
             print("Complete Normalize Datasets")
             train_df, test_df, y_train, y_test = train_test_split(total_df, total_df['destination'], test_size=0.3, stratify=total_df['destination'], random_state=42)
 
+        print(f'len(Train dataframe): {len(train_df)}, \t len(Test dataframe): {len(test_df)}')
         print("Complete Train Test Split")
         return train_df, test_df
 

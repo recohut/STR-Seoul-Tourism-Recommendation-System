@@ -9,7 +9,7 @@ class CreatingUserId(nn.Module):
                  num_age,
                  num_month,
                  num_day,
-                 num_dim=8,
+                 num_dim=4,
                  num_factor=32,
                  ):
         super(CreatingUserId, self).__init__()

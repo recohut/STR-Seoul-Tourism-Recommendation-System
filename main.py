@@ -19,8 +19,8 @@ print(f'device: {device}')
 
 # print GPU information
 if device == 'cuda':
-    print(f'Current cuda device: {torch.cuda.current_device()}')
-    print(f'Count of using GPUs: {torch.cuda.device_count()}')
+    print('Current cuda device:', torch.cuda.current_device())
+    print('Count of using GPUs:', torch.cuda.device_count())
 
 warnings.filterwarnings('ignore')
 
@@ -62,6 +62,7 @@ optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
 criterion = RMSELoss()
 
 if __name__ == '__main__' :
+    print('-------------------Train Start-------------------')
     start_time = datetime.now()
 
     train(model=model,
@@ -73,20 +74,22 @@ if __name__ == '__main__' :
           device=device,
           print_cost=True)
 
-    end_time = datatime.now()
+    end_time = datetime.now()
+    print('-------------------Train Finished-------------------')
     print(f'Training time : {end_time -start_time}')
+
 
     model_root_dir ='saved_model'
     if not os.path.exists(model_root_dir):
         os.mkdir(model_root_dir)
 
-    model_id = random.random(1,101)
+    model_id = random.randrange(1,101)
     if save_model:
         model_dir = os.path.join(model_root_dir, f'MF_{model_id}+.pth')
         while (1):
             if os.path.exists(model_dir):
-                model_id = random.random(1, 101)
-                model_dir = os.path.join(model_root_dir, f'MF_{model_id}+.pth')
+                model_id = random.randrange(1, 101)
+                model_dir = os.path.join(model_root_dir, f'MF_{model_id}.pth')
             else:
                 break
         torch.save(model, model_dir)
