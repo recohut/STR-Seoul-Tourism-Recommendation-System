@@ -12,6 +12,8 @@ from model.MF import MatrixFactorization
 from criterion import RMSELoss
 from train import train
 
+
+
 def input_filterchar(userinfo:str):
     str=""
     for token in userinfo:
@@ -62,6 +64,15 @@ def sex2int(sex):
     return 1 if sex=='남성'else 0
 
 if __name__ == '__main__' :
+    # check device
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f'device: {device}')
+
+    # print GPU information
+    if torch.cuda.is_available():
+        print('Current cuda device:', torch.cuda.current_device())
+        print('Count of using GPUs:', torch.cuda.device_count())
+
     # print("몇명이서 관광할 계획이신가요? ex) 3명")
     # num_people = input_filterchar(input())
     # print("몇월 몇일 무슨 요일에 놀러갈 계획이신가요? ex) 1월 3일 수요일")
@@ -90,17 +101,29 @@ if __name__ == '__main__' :
 
     print("-------------------Load Destination_info-------------------")
     data = Preprocessing(shuffle=False)
+    num_destination, num_time, num_sex, num_age, num_dayofweek, num_month, num_day = data.get_num()
+
     destination_id_name_df, destination_list = data.destination_list()
     batch_candidate = 100
     print("Load Destination_info complete")
 
     print("-------------------Load Model-------------------")
-    model_root_dir ='saved_model'
-    model_dir = os.path.join(model_root_dir,'MF_6.pth')
-    if not os.path.exists(model_dir):
+    FOLDER_PATH ='saved_model'
+    MODEL_PATH = os.path.join(FOLDER_PATH,'MF_6.pth')
+    if not os.path.exists(MODEL_PATH):
         print("Model doesn't exist.")
         sys.exit()
-    model = torch.load(model_dir)
+
+    model = MatrixFactorization(num_dayofweek=num_dayofweek,
+                                num_time=num_time,
+                                num_sex=num_sex,
+                                num_age=num_age,
+                                num_month=num_month,
+                                num_day=num_day,
+                                num_destination=num_destination,
+                                num_dim=4,
+                                num_factor=32, )
+    model.load_state_dict(torch.load(MODEL_PATH,map_location=device))
     print("Load Model complete")
 
     for i,user_input in enumerate(RecSys_total_input):

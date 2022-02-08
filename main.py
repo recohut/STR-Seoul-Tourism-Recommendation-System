@@ -79,10 +79,10 @@ if __name__ == '__main__' :
     print(f'Training time : {end_time -start_time}')
 
 
-    model_root_dir ='saved_model'
-    if not os.path.exists(model_root_dir):
-        os.mkdir(model_root_dir)
+    FOLDER_PATH ='saved_model'
+    if not os.path.exists(FOLDER_PATH):
+        os.mkdir(FOLDER_PATH)
 
     if save_model:
-        model_dir = os.path.join(model_root_dir, f'MF_{args.epochs}_{args.batch_size}.pth')
-        torch.save(model, model_dir)
+        MODEL_PATH = os.path.join(FOLDER_PATH, f'MF_{args.epochs}_{args.batch_size}.pth')
+        torch.save(state_dict(), MODEL_PATH)
