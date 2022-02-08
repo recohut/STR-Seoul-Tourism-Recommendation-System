@@ -123,15 +123,14 @@ class Input_Dataset(Dataset):
         return len(self.month)
 
     def __getitem__(self, idx):
-        return self.month[idx], self.day[idx], self.dayofweek[idx], self.time[idx], self.sex[idx], self.age[idx], self.destination[idx]
-
+        return self.destination[idx], self.time[idx], self.sex[idx], self.age[idx], self.dayofweek[idx], self.month[idx], self.day[idx]
     def change_tensor(self):
         month = torch.tensor([self.RecSys_input[0]] * 100)
         day = torch.tensor([self.RecSys_input[1]] * 100)
         dayofweek = torch.tensor([self.RecSys_input[2]] * 100)
         time = torch.tensor([self.RecSys_input[3]] * 100)
-        sex = torch.tensor([self.RecSys_input[4]] * 100)
-        age = torch.tensor([self.RecSys_input[5]] * 100)
+        age = torch.tensor([self.RecSys_input[4]] * 100)
+        sex = torch.tensor([self.RecSys_input[5]] * 100)
         destination = torch.tensor(self.destination_list)
 
         return month, day, dayofweek, time, sex, age, destination

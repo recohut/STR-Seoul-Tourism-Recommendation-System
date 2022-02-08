@@ -54,7 +54,7 @@ model = MatrixFactorization(num_dayofweek = num_dayofweek,
                              num_month = num_month,
                              num_day = num_day,
                              num_destination = num_destination,
-                             num_dim=4,
+                             num_dim=8,
                              num_factor=32,)
 
 model.to(device)
