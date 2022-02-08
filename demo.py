@@ -122,7 +122,7 @@ if __name__ == '__main__' :
     model.load_state_dict(torch.load(MODEL_PATH,map_location=device))
     print("Load Model complete\n")
 
-    topk = 50
+    topk = 14
     total_ranking = {}
 
     for i,user_input in enumerate(RecSys_total_input):
@@ -150,11 +150,11 @@ if __name__ == '__main__' :
 
             if(rank_weight := total_ranking.get(destionation_name)) is None:
                 total_ranking[destionation_name]=0
-            total_ranking[destionation_name]+=one_over_congestion
+            total_ranking[destionation_name]+=one_over_congestion*100
 
     print(f'-------------------전체 Top {topk}등 추천지 입니다.-------------------\n')
     sorted_total_ranking = sorted(total_ranking.items(), key=lambda item:item[1], reverse=True)
     print("전체 랭킹리스트 개수: ",len(sorted_total_ranking))
     for k in range(topk):
-        print(f'{k+1}등 :\t{sorted_total_ranking[k][0]}')
+        print(f'{k+1}등 :\t{sorted_total_ranking[k]}')
 

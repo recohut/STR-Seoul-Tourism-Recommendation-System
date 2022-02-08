@@ -9,11 +9,11 @@ def test( model:nn.Module,
     total_batch_len = len(dataloader)
     total_loss = 0
     with torch.no_grad():
-        for destination, time, sex, age, dayofweek, month, day, congestion_1 in dataloader:
+        for destination, time, sex, age, dayofweek, month, day, visitor in dataloader:
             destination = destination.to(device)
             dayofweek, time, sex, age, month, day = dayofweek.to(device), time.to(device), sex.to(device), age.to(
                 device), month.to(device), day.to(device)
-            target = congestion_1.to(device)
+            target = visitor.to(device)
             pred = model(dayofweek, time, sex, age, month, day, destination)
             loss = criterion(pred, target)
             total_loss += loss

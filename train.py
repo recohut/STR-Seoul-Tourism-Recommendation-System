@@ -15,11 +15,11 @@ def train(model:nn.Module,
 
     for epochs in range(0,epochs):
         total_loss = 0
-        for destination, time, sex, age, dayofweek, month, day, congestion_1 in dataloader:
+        for destination, time, sex, age, dayofweek, month, day, visitor in dataloader:
             destination = destination.to(device)
             dayofweek, time, sex, age, month, day = dayofweek.to(device), time.to(device), sex.to(device), age.to(
                 device), month.to(device), day.to(device)
-            target = congestion_1.to(device)
+            target = visitor.to(device)
             optimizer.zero_grad()
             pred = model(dayofweek, time, sex, age, month, day, destination)
             loss = criterion(pred, target)

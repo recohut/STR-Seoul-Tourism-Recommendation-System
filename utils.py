@@ -62,20 +62,20 @@ class Preprocessing():
         df2020 = total_df[total_df['year']==2020]
 
         # congetion^-1
-        total_df[['congestion_1','congestion_2']] = 1/total_df[['congestion_1','congestion_2']]
-        df2018[['congestion_1','congestion_2']] = 1/df2018[['congestion_1','congestion_2']]
-        df2019[['congestion_1','congestion_2']] = 1/df2019[['congestion_1','congestion_2']]
-        df2020[['congestion_1','congestion_2']] = 1/df2020[['congestion_1','congestion_2']]
+        # total_df[['congestion_1','congestion_2']] = 1/total_df[['congestion_1','congestion_2']]
+        # df2018[['congestion_1','congestion_2']] = 1/df2018[['congestion_1','congestion_2']]
+        # df2019[['congestion_1','congestion_2']] = 1/df2019[['congestion_1','congestion_2']]
+        # df2020[['congestion_1','congestion_2']] = 1/df2020[['congestion_1','congestion_2']]
 
         # congestion normalize & train test split
         if self.shuffle == False:
             train_df = df2018
             test_df = df2019
-            train_df[['congestion_1','congestion_2']] = scaler.fit_transform(pd.DataFrame(train_df[['congestion_1','congestion_2']]))
-            test_df[['congestion_1','congestion_2']] = scaler.fit_transform(pd.DataFrame(test_df[['congestion_1','congestion_2']]))
+            train_df[['visitor',]] = scaler.fit_transform(pd.DataFrame(train_df[['visitor',]]))
+            test_df[['visitor',]] = scaler.fit_transform(pd.DataFrame(test_df[['visitor',]]))
             print("Complete Normalize Datasets")
         else:
-            total_df[['congestion_1','congestion_2']] = scaler.fit_transform(pd.DataFrame(total_df[['congestion_1','congestion_2']]))
+            total_df[['visitor']] = scaler.fit_transform(pd.DataFrame(total_df[['visitor']]))
             print("Complete Normalize Datasets")
             train_df, test_df, y_train, y_test = train_test_split(total_df, total_df['destination'], test_size=0.3, stratify=total_df['destination'], random_state=42)
 
@@ -108,8 +108,8 @@ class Tourism(Dataset):
         dayofweek = torch.tensor(list(self.df['dayofweek']))
         month = torch.tensor(list(self.df['month']))
         day = torch.tensor(list(self.df['day']))
-        congestion_1 = torch.tensor(list(self.df['congestion_1']))
-        return destination, time, sex, age, dayofweek, month, day, congestion_1
+        visitor = torch.tensor(list(self.df['visitor']))
+        return destination, time, sex, age, dayofweek, month, day, visitor
 
 
 class Input_Dataset(Dataset):
