@@ -122,7 +122,7 @@ if __name__ == '__main__' :
     print("Load Destination_info complete\n")
     print("-------------------Load Model-------------------\n")
     FOLDER_PATH ='saved_model'
-    MODEL_PATH = os.path.join(FOLDER_PATH,'MF_10_256.pth')
+    MODEL_PATH = os.path.join(FOLDER_PATH,'MF_20_256_diag_no_MLP.pth')
     if not os.path.exists(MODEL_PATH):
         print("Model doesn't exist.\n")
         sys.exit()
@@ -135,11 +135,11 @@ if __name__ == '__main__' :
                                 num_day=num_day,
                                 num_destination=num_destination,
                                 num_dim=8,
-                                num_factor=32, )
+                                num_factor=48, )
     model.load_state_dict(torch.load(MODEL_PATH,map_location=device))
     print("Load Model complete\n")
 
-    topk = 30
+    topk = 10
     total_ranking = {}
 
     for i,user_input in enumerate(RecSys_total_input):
@@ -167,7 +167,7 @@ if __name__ == '__main__' :
 
             if(rank_weight := total_ranking.get(destionation_name)) is None:
                 total_ranking[destionation_name]=0
-            total_ranking[destionation_name]+=pred_target
+            total_ranking[destionation_name]+=topk-k
 
     print(f'-------------------전체 Top {topk}등 추천지 입니다.-------------------\n')
     sorted_total_ranking = sorted(total_ranking.items(), key=lambda item:item[1], reverse=True)

@@ -28,14 +28,17 @@ warnings.filterwarnings('ignore')
 save_model = True if args.save_model == 'True' else False
 use_shuffle = True if args.shuffle =='True' else False
 
+# select target
+target_name = 'visitor' if args.target == 'v' else 'congestion1'
+
 # shuffle
 data = Preprocessing(shuffle=use_shuffle)
 num_destination, num_time, num_sex, num_age, num_dayofweek, num_month, num_day = data.get_num()
 
 # loading train/test dataframe
 train_df, test_df = data.preprocessing()
-train_dataset = Tourism(train_df)
-test_dataset = Tourism(test_df)
+train_dataset = Tourism(train_df,target_name)
+test_dataset = Tourism(test_df,target_name)
 
 train_dataloader = DataLoader(dataset=train_dataset,
                               batch_size=args.batch_size,
@@ -84,6 +87,6 @@ if __name__ == '__main__' :
         os.mkdir(FOLDER_PATH)
 
     if save_model:
-        MODEL_PATH = os.path.join(FOLDER_PATH, f'MF_{args.epochs}_{args.batch_size}.pth')
+        MODEL_PATH = os.path.join(FOLDER_PATH, f'MF_{args.epochs}_{args.batch_size}_{target_name}.pth')
         torch.save(model.state_dict(), MODEL_PATH)
 

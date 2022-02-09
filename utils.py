@@ -62,20 +62,24 @@ class Preprocessing():
         df2020 = total_df[total_df['year']==2020]
 
         # congetion^-1
-        # total_df[['congestion_1','congestion_2']] = 1/total_df[['congestion_1','congestion_2']]
-        # df2018[['congestion_1','congestion_2']] = 1/df2018[['congestion_1','congestion_2']]
-        # df2019[['congestion_1','congestion_2']] = 1/df2019[['congestion_1','congestion_2']]
-        # df2020[['congestion_1','congestion_2']] = 1/df2020[['congestion_1','congestion_2']]
+        total_df[['congestion_1','congestion_2']] = 1/total_df[['congestion_1','congestion_2']]
+        df2018[['congestion_1','congestion_2']] = 1/df2018[['congestion_1','congestion_2']]
+        df2019[['congestion_1','congestion_2']] = 1/df2019[['congestion_1','congestion_2']]
+        df2020[['congestion_1','congestion_2']] = 1/df2020[['congestion_1','congestion_2']]
 
         # congestion normalize & train test split
         if self.shuffle == False:
             train_df = df2018
             test_df = df2019
-            train_df[['visitor',]] = scaler.fit_transform(pd.DataFrame(train_df[['visitor',]]))
-            test_df[['visitor',]] = scaler.fit_transform(pd.DataFrame(test_df[['visitor',]]))
+            train_df['visitor'] = scaler.fit_transform(pd.DataFrame(train_df['visitor']))
+            train_df['congestion_1'] = scaler.fit_transform(pd.DataFrame(train_df['congestion_1']))
+            test_df['visitor'] = scaler.fit_transform(pd.DataFrame(test_df['visitor']))
+            test_df['congestion_1'] = scaler.fit_transform(pd.DataFrame(test_df[['congestion_1']]))
+
             print("Complete Normalize Datasets")
         else:
-            total_df[['visitor']] = scaler.fit_transform(pd.DataFrame(total_df[['visitor']]))
+            total_df['visitor'] = scaler.fit_transform(pd.DataFrame(total_df['visitor']))
+            total_df['congestion_1'] = scaler.fit_transform(pd.DataFrame(total_df['congestion_1']))
             print("Complete Normalize Datasets")
             train_df, test_df, y_train, y_test = train_test_split(total_df, total_df['destination'], test_size=0.3, stratify=total_df['destination'], random_state=42)
 
@@ -89,16 +93,17 @@ class Preprocessing():
 
 
 class Tourism(Dataset):
-    def __init__(self, df):
+    def __init__(self, df, target_name):
         super(Tourism, self).__init__()
         self.df = df
-        self.destination, self.time, self.sex, self.age, self.dayofweek, self.month, self.day, self.visitor = self.change_tensor()
+        self.destination, self.time, self.sex, self.age, self.dayofweek, self.month, self.day, self.target = self.change_tensor()
 
     def __len__(self):
         return len(self.df)
 
     def __getitem__(self, idx):
-        return self.destination[idx], self.time[idx], self.sex[idx], self.age[idx], self.dayofweek[idx], self.month[idx], self.day[idx], self.visitor[idx]
+        return self.destination[idx], self.time[idx], self.sex[idx], self.age[idx], \
+               self.dayofweek[idx], self.month[idx], self.day[idx], self.target[idx]
 
     def change_tensor(self):
         destination = torch.tensor(list(self.df['destination']))
@@ -108,8 +113,8 @@ class Tourism(Dataset):
         dayofweek = torch.tensor(list(self.df['dayofweek']))
         month = torch.tensor(list(self.df['month']))
         day = torch.tensor(list(self.df['day']))
-        visitor = torch.tensor(list(self.df['visitor']))
-        return destination, time, sex, age, dayofweek, month, day, visitor
+        target = torch.tensor(list(self.df[target_name]))
+        return destination, time, sex, age, dayofweek, month, day, target
 
 
 class Input_Dataset(Dataset):
