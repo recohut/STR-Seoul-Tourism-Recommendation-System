@@ -212,7 +212,7 @@ if __name__ == '__main__' :
         print(f'\n-------------------혼잡도를 고려한 랭킹을 다시 하겠습니다.-------------------')
         total_ranking_congest = {}
         for i,dest in enumerate(sorted_total_ranking_with_congestion):
-            total_ranking_congest[dest[0]]=total_ranking[dest[0]][1]*np.reciprocal(np.log2(i+2))
+            total_ranking_congest[dest[0]]=1/total_ranking[dest[0]][1]*np.reciprocal(np.log2(i+2))
 
 
         sorted_total_ranking_with_congestion = sorted(total_ranking_congest.items(), key=lambda item:item[1], reverse=True)
