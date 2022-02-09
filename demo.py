@@ -134,8 +134,8 @@ if __name__ == '__main__' :
 
     print("-------------------Load Model-------------------\n")
     FOLDER_PATH ='saved_model'
-    MODEL_PATH_VISITOR = os.path.join(FOLDER_PATH,'MF_10_256_visitor.pth')
-    MODEL_PATH_CONGESTION = os.path.join(FOLDER_PATH,'MF_10_256_congestion_1.pth')
+    MODEL_PATH_VISITOR = os.path.join(FOLDER_PATH,'MF_20_256_visitor.pth')
+    MODEL_PATH_CONGESTION = os.path.join(FOLDER_PATH,'MF_20_256_congestion_1.pth')
     if not os.path.exists(MODEL_PATH_VISITOR) or not os.path.exists(MODEL_PATH_CONGESTION):
         print("Model doesn't exist.\n")
         sys.exit()
@@ -180,13 +180,13 @@ if __name__ == '__main__' :
         user_df['visitor'] = pred_visitor
         user_df['congestion'] = pred_congestion
         user_df = user_df.sort_values(by='visitor', ascending=False)
-        print(user_df.head(50))
+
         print(f'\n-------------------{i+1}번째 사람을 위한 Top {topk}등 추천지 입니다.-------------------\n')
 
         for k in range(topk):
-            destionation_name = user_df['destination_name'][k]
-            pred_visitor = user_df['visitor'][k]
-            pred_congestion = user_df['congestion'][k]
+            destionation_name = user_df.iloc[k,1]
+            pred_visitor = user_df.iloc[k,2]
+            pred_congestion = user_df.iloc[k,3]
             print(f'{k+1}등:\t{pred_visitor}\t{destionation_name}')
 
             if(rank_weight := total_ranking.get(destionation_name)) is None:
@@ -214,5 +214,5 @@ if __name__ == '__main__' :
 
         print(f'\n-------------------혼잡도를 고려한 전체 Top {topk}등 추천지 입니다.-------------------\n')
         for k in range(topk):
-            print(f'{k+1}등 :\t{sorted_total_ranking_with_congestion[k]}')
+            print(f'{k+1}등 :\t{sorted_total_ranking_with_congestion[k][0]}')
 
