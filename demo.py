@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 import random
@@ -86,28 +87,23 @@ if __name__ == '__main__' :
         print('Current cuda device:', torch.cuda.current_device())
         print('Count of using GPUs:', torch.cuda.device_count())
 
-    # print("몇명이서 관광할 계획이신가요? ex) 3명")
-    # num_people = input_filterchar(input())
-    # print("몇월 몇일 무슨 요일에 놀러갈 계획이신가요? ex) 1월 3일 수요일")
-    # date = list(input().split())
-    # print("시간대는 언제가 좋으신가요? ex) 13시")
-    # timezone = time2range(input_filterchar(input()))
-    # month, day, dayofweek = str2datetime(date)
-    # total_user_info =[]
-    # for i in range(1, num_people + 1):
-    #     li=[month,day,dayofweek,timezone]
-    #     print(f"{i}번째 분의 어떤 연령대 인가요?. ex) 20대")
-    #     li.append(age2range(input_filterchar(input())))
-    #     print(f"{i}번째 분의 성별은 무엇이신가요?. ex) 남성/여성")
-    #     li.append(sex2int(input()))
-    #     total_user_info.append(li)
-    # RecSys_total_input = total_user_info
-    #
-    # for sample testcase
-    RecSys_total_input =[]
-    with open('sample_input.txt',mode='r') as f:
-        for line in f:
-            RecSys_total_input.append([int(x) for x in line.split(',')])
+    print("몇명이서 관광할 계획이신가요? ex) 3명")
+    num_people = input_filterchar(input())
+    print("몇월 몇일 무슨 요일에 놀러갈 계획이신가요? ex) 1월 3일 수요일")
+    date = list(input().split())
+    print("시간대는 언제가 좋으신가요? ex) 13시")
+    timezone = time2range(input_filterchar(input()))
+    month, day, dayofweek = str2datetime(date)
+    total_user_info =[]
+    for i in range(1, num_people + 1):
+        li=[month,day,dayofweek,timezone]
+        print(f"{i}번째 분의 어떤 연령대 인가요?. ex) 20대")
+        li.append(age2range(input_filterchar(input())))
+        print(f"{i}번째 분의 성별은 무엇이신가요?. ex) 남성/여성")
+        li.append(sex2int(input()))
+        total_user_info.append(li)
+    RecSys_total_input = total_user_info
+
 
     # print converted user info
     print("\n변환된 user info는 다음과 같습니다.\n")
@@ -115,15 +111,23 @@ if __name__ == '__main__' :
         print(i)
 
     # check for congestion
-    # print("혼잡도를 고려한 관광지 추천 리스트를 원하시나요?")
-    # check_congestion = True if input()=='네' else False
-    check_congestion = True
+    print("혼잡도를 고려한 관광지 추천 리스트를 원하시나요?")
+    check_congestion = True if input()=='네' else False
 
     # input for topk
-    # print("총 몇개의 관광지가 포함된 추천 리스트를 원하시요?")
-    # topk = input_filterchar(input())
-    topk = 10
+    print("총 몇개의 관광지가 포함된 추천 리스트를 원하시요?")
+    topk = input_filterchar(input())
 
+    # check_congestion = True
+    # topk = 10
+    # # for sample testcase
+    # RecSys_total_input =[]
+    # with open('sample_input.txt',mode='r') as f:
+    #     for line in f:
+    #         RecSys_total_input.append([int(x) for x in line.split(',')])
+    # print("\n변환된 user info는 다음과 같습니다.\n")
+    # for i in RecSys_total_input:
+    #     print(i)
 
     print("\n-------------------Load Destination_info-------------------\n")
     data = Preprocessing(shuffle=False)
