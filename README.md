@@ -4,7 +4,8 @@ Dataset is private.
 
 
 ### Quick Start
-```python
+```bash
+cd saved_model
 cat visitor_20.z01 visitor_20.z02 visitor_20.z03 visitor_20.z04 visitor_20.zip > Outzip.zip
 unzip Outzip.zip
 cat congest_20.z01 congest_20.z02 congestion_20.z03 congest_20.z04 congest_20.zip > Outzip1.zip
