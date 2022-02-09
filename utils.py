@@ -130,6 +130,7 @@ class Input_Dataset(Dataset):
 
     def __getitem__(self, idx):
         return self.destination[idx], self.time[idx], self.sex[idx], self.age[idx], self.dayofweek[idx], self.month[idx], self.day[idx]
+
     def change_tensor(self):
         month = torch.tensor([self.RecSys_input[0]] * 100)
         day = torch.tensor([self.RecSys_input[1]] * 100)

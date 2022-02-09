@@ -4,13 +4,9 @@ import random
 import torch
 import warnings
 from torch.utils.data import DataLoader
-import torch.optim as optim
-from parser import args
 from utils import Tourism, Preprocessing, Input_Dataset
-from datetime import datetime
 from model.MF import MatrixFactorization
-from criterion import RMSELoss
-from train import train
+import numpy as np
 
 '''
     date : 2018-01-01 ~ 2020-12-31
@@ -106,28 +102,43 @@ if __name__ == '__main__' :
     #     li.append(sex2int(input()))
     #     total_user_info.append(li)
     # RecSys_total_input = total_user_info
-    print("변환된 user info는 다음과 같습니다.\n")
+
+    # for sample testcase
     RecSys_total_input =[]
     with open('sample_input.txt',mode='r') as f:
         for line in f:
             RecSys_total_input.append([int(x) for x in line.split(',')])
+
+    # print converted user info
+    print("\n변환된 user info는 다음과 같습니다.")
     for i in RecSys_total_input:
         print(i)
 
-    print("-------------------Load Destination_info-------------------\n")
+    # check for congestion
+    print("혼잡도를 고려한 관광지 추천 리스트를 원하시나요?")
+    check_congestion = True if input().lower()=='yes' else False
+
+    # input for topk
+    # print("총 몇개의 관광지가 포함된 추천 리스트를 원하시요?")
+    # topk = input()
+    topk = 10
+
+
+    print("\n-------------------Load Destination_info-------------------\n")
     data = Preprocessing(shuffle=False)
     num_destination, num_time, num_sex, num_age, num_dayofweek, num_month, num_day = data.get_num()
     destination_id_name_df, destination_list = data.destination_list()
     batch_candidate = 100
     print("Load Destination_info complete\n")
+
     print("-------------------Load Model-------------------\n")
     FOLDER_PATH ='saved_model'
-    MODEL_PATH = os.path.join(FOLDER_PATH,'MF_20_256_diag_no_MLP.pth')
-    if not os.path.exists(MODEL_PATH):
+    MODEL_PATH_VISITOR = os.path.join(FOLDER_PATH,'MF_20_256_diag_no_MLP.pth')
+    MODEL_PATH_CONGESTION = os.path.join(FOLDER_PATH,'MF_20_256_diag_no_MLP.pth')
+    if not os.path.exists(MODEL_PATH_VISITOR) or not os.path.exists(MODEL_PATH_CONGESTION):
         print("Model doesn't exist.\n")
         sys.exit()
-
-    model = MatrixFactorization(num_dayofweek=num_dayofweek,
+    model_visitor = MatrixFactorization(num_dayofweek=num_dayofweek,
                                 num_time=num_time,
                                 num_sex=num_sex,
                                 num_age=num_age,
@@ -136,12 +147,21 @@ if __name__ == '__main__' :
                                 num_destination=num_destination,
                                 num_dim=8,
                                 num_factor=48, )
-    model.load_state_dict(torch.load(MODEL_PATH,map_location=device))
-    print("Load Model complete\n")
+    model_congestion = MatrixFactorization(num_dayofweek=num_dayofweek,
+                                num_time=num_time,
+                                num_sex=num_sex,
+                                num_age=num_age,
+                                num_month=num_month,
+                                num_day=num_day,
+                                num_destination=num_destination,
+                                num_dim=8,
+                                num_factor=48, )
 
-    topk = 10
+    model_visitor.load_state_dict(torch.load(MODEL_PATH_VISITOR,map_location=device))
+    model_congestion.load_state_dict(torch.load(MODEL_PATH_CONGESTION,map_location=device))
+    print("Load Model complete")
+
     total_ranking = {}
-
     for i,user_input in enumerate(RecSys_total_input):
         user_df = destination_id_name_df
         RecSys_dataset = Input_Dataset(destination_list=destination_list, RecSys_input=user_input)
@@ -152,25 +172,38 @@ if __name__ == '__main__' :
             destination = destination.to(device)
             dayofweek, time, sex, age, month, day = dayofweek.to(device), time.to(device), sex.to(device), age.to(
                 device), month.to(device), day.to(device)
-            pred = model(dayofweek, time, sex, age, month, day, destination)
-        pred = pred.view(-1)
-        pred = pred.tolist()
-        user_df['pred_congestion'] = pred
-        user_df = user_df.sort_values(by='pred_congestion', ascending=False)
+            pred_visitor = model_visitor(dayofweek, time, sex, age, month, day, destination)
+            pred_congestion = model_congestion(dayofweek, time, sex, age, month, day, destination)
+        pred_visitor = pred_visitor.tolist()
+        pred_congestion = pred_congestion.tolist()
+        user_df['visitor'] = pred_visitor
+        user_df['congestion'] = pred_congestion
+        user_df = user_df.sort_values(by='visitor', ascending=False)
 
         print(f'\n-------------------{i+1}번째 사람을 위한 Top {topk}등 추천지 입니다.-------------------\n')
 
         for k in range(topk):
             destionation_name = user_df.iloc[k, 1]
             pred_target = user_df.iloc[k, 2]
+            pred_congestion = user_df.iloc[k,3]
             print(f'{k+1}등:\t{pred_target}\t{destionation_name}')
-
             if(rank_weight := total_ranking.get(destionation_name)) is None:
-                total_ranking[destionation_name]=0
-            total_ranking[destionation_name]+=topk-k
+                total_ranking[destionation_name]=[]
+            total_ranking[destionation_name][0]+=topk-k
+            total_ranking[destionation_name][1]+=pred_congestion
 
-    print(f'-------------------전체 Top {topk}등 추천지 입니다.-------------------\n')
-    sorted_total_ranking = sorted(total_ranking.items(), key=lambda item:item[1], reverse=True)
+    sorted_total_ranking = sorted(total_ranking.items(), key=lambda item:item[1][0], reverse=True)
+
+
+    if check_congestion:
+        print(f'-------------------혼잡도를 고려한 랭킹을 다시 하겠습니다.-------------------')
+        total_ranking_congest = {}
+        for i,(dest,_) in enumerate(sorted_total_ranking):
+            total_ranking_congest[dest]=total_ranking[dest][1]*np.reciprocal(np.log2(i+2))
+
+        sorted_total_ranking = sorted(total_ranking_congest.items(), key=lambda item:item[1], reverse=True)
+
+    print(f'\n-------------------전체 Top {topk}등 추천지 입니다.-------------------\n')
     print("전체 랭킹리스트 개수: ",len(sorted_total_ranking))
     for k in range(topk):
         print(f'{k+1}등 :\t{sorted_total_ranking[k]}')
