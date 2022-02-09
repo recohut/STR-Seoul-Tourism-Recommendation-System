@@ -29,7 +29,8 @@ save_model = True if args.save_model == 'True' else False
 use_shuffle = True if args.shuffle =='True' else False
 
 # select target
-target_name = 'visitor' if args.target == 'v' else 'congestion1'
+target_name = 'visitor' if args.target == 'v' else 'congestion_1'
+print(f'selected target is {target_name}')
 
 # shuffle
 data = Preprocessing(shuffle=use_shuffle)
