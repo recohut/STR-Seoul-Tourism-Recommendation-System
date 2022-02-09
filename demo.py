@@ -201,7 +201,7 @@ if __name__ == '__main__' :
     sorted_total_ranking = sorted(total_ranking.items(), key=lambda item:item[1][0], reverse=True)
     sorted_total_ranking_with_congestion = []
 
-    print(f'\n------------------- 전체 랭킹리스트 개수:{len(sorted_total_ranking)}-------------------\n')
+    print(f'\n------------------- 전체 랭킹리스트에 포함된 관광지 종류:{len(sorted_total_ranking)}-------------------\n')
     print(f'-------------------혼잡도를 고려하지 않은 전체 Top {topk}등 추천지 입니다.-------------------\n')
     for k in range(topk):
         dest = sorted_total_ranking[k]
