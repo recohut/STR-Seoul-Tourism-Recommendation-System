@@ -110,13 +110,14 @@ if __name__ == '__main__' :
             RecSys_total_input.append([int(x) for x in line.split(',')])
 
     # print converted user info
-    print("\n변환된 user info는 다음과 같습니다.")
+    print("\n변환된 user info는 다음과 같습니다.\n")
     for i in RecSys_total_input:
         print(i)
 
     # check for congestion
-    print("혼잡도를 고려한 관광지 추천 리스트를 원하시나요?")
-    check_congestion = True if input().lower()=='yes' else False
+    # print("혼잡도를 고려한 관광지 추천 리스트를 원하시나요?")
+    # check_congestion = True if input().lower()=='yes' else False
+    check_congestion = True
 
     # input for topk
     # print("총 몇개의 관광지가 포함된 추천 리스트를 원하시요?")
@@ -133,8 +134,8 @@ if __name__ == '__main__' :
 
     print("-------------------Load Model-------------------\n")
     FOLDER_PATH ='saved_model'
-    MODEL_PATH_VISITOR = os.path.join(FOLDER_PATH,'MF_20_256_diag_no_MLP.pth')
-    MODEL_PATH_CONGESTION = os.path.join(FOLDER_PATH,'MF_20_256_diag_no_MLP.pth')
+    MODEL_PATH_VISITOR = os.path.join(FOLDER_PATH,'MF_10_256_visitor.pth')
+    MODEL_PATH_CONGESTION = os.path.join(FOLDER_PATH,'MF_10_256_congestion_1.pth')
     if not os.path.exists(MODEL_PATH_VISITOR) or not os.path.exists(MODEL_PATH_CONGESTION):
         print("Model doesn't exist.\n")
         sys.exit()
@@ -179,33 +180,39 @@ if __name__ == '__main__' :
         user_df['visitor'] = pred_visitor
         user_df['congestion'] = pred_congestion
         user_df = user_df.sort_values(by='visitor', ascending=False)
-
+        print(user_df.head(50))
         print(f'\n-------------------{i+1}번째 사람을 위한 Top {topk}등 추천지 입니다.-------------------\n')
 
         for k in range(topk):
-            destionation_name = user_df.iloc[k, 1]
-            pred_target = user_df.iloc[k, 2]
-            pred_congestion = user_df.iloc[k,3]
-            print(f'{k+1}등:\t{pred_target}\t{destionation_name}')
+            destionation_name = user_df['destination_name'][k]
+            pred_visitor = user_df['visitor'][k]
+            pred_congestion = user_df['congestion'][k]
+            print(f'{k+1}등:\t{pred_visitor}\t{destionation_name}')
+
             if(rank_weight := total_ranking.get(destionation_name)) is None:
-                total_ranking[destionation_name]=[]
-            total_ranking[destionation_name][0]+=topk-k
+                total_ranking[destionation_name]=[0,0]
+            total_ranking[destionation_name][0]+=pred_visitor
             total_ranking[destionation_name][1]+=pred_congestion
 
-    sorted_total_ranking = sorted(total_ranking.items(), key=lambda item:item[1][0], reverse=True)
+    sorted_total_ranking = sorted(total_ranking.items(), key=lambda item:item[1][1], reverse=True)
+    sorted_total_ranking_with_congestion = []
 
+    print(f'\n------------------- 전체 랭킹리스트 개수:{len(sorted_total_ranking)}-------------------\n')
+    print(f'\n-------------------혼잡도를 고려하지 않은 전체 Top {topk}등 추천지 입니다.-------------------\n')
+    for k in range(topk):
+        dest = sorted_total_ranking[k][0]
+        sorted_total_ranking_with_congestion.append(dest)
+        print(f'{k+1}등 :\t{dest}')
 
     if check_congestion:
         print(f'-------------------혼잡도를 고려한 랭킹을 다시 하겠습니다.-------------------')
         total_ranking_congest = {}
-        for i,(dest,_) in enumerate(sorted_total_ranking):
-            total_ranking_congest[dest]=total_ranking[dest][1]*np.reciprocal(np.log2(i+2))
+        for i,dest in enumerate(sorted_total_ranking_with_congestion):
+            total_ranking_congest[dest]=total_ranking[dest][0]*np.reciprocal(np.log2(i+2))
 
-        sorted_total_ranking = sorted(total_ranking_congest.items(), key=lambda item:item[1], reverse=True)
+        sorted_total_ranking_with_congestion = sorted(total_ranking_congest.items(), key=lambda item:item[1], reverse=True)
 
-    print(f'\n-------------------전체 Top {topk}등 추천지 입니다.-------------------\n')
-    print("전체 랭킹리스트 개수: ",len(sorted_total_ranking))
-    for k in range(topk):
-        print(f'{k+1}등 :\t{sorted_total_ranking[k]}')
+        print(f'\n-------------------혼잡도를 고려한 전체 Top {topk}등 추천지 입니다.-------------------\n')
+        for k in range(topk):
+            print(f'{k+1}등 :\t{sorted_total_ranking_with_congestion[k]}')
 
-print('왜 않되')
