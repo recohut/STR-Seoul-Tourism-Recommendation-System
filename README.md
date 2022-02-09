@@ -2,7 +2,7 @@ This repository is for STRMF(Seoul Tourism Recommendation using Matrix Factoriza
 
 Dataset is private.
 
-### Quick Strat
+### Quick Start
 ```python
 python demo.py
 ```
