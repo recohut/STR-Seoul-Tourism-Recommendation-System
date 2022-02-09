@@ -12,6 +12,23 @@ from model.MF import MatrixFactorization
 from criterion import RMSELoss
 from train import train
 
+'''
+    date : 2018-01-01 ~ 2020-12-31
+    destination : 관광지 코드
+    time : 방문한 시간대
+    sex : 성
+    age : 나이
+    visitor : 방문객수
+    year : 년도
+    month : 월
+    day : 일
+    dayofweek : 요일
+    total_num : 총 수용인원수
+    area : 관광지 면적
+    date365 : 0~365
+    congestion_1 : 방문객수 / 총수용인원수
+    congestion_2 : 방문객수 / 관광지면적
+'''
 
 
 def input_filterchar(userinfo:str):
@@ -105,7 +122,7 @@ if __name__ == '__main__' :
     print("Load Destination_info complete\n")
     print("-------------------Load Model-------------------\n")
     FOLDER_PATH ='saved_model'
-    MODEL_PATH = os.path.join(FOLDER_PATH,'MF_20_256_2.pth')
+    MODEL_PATH = os.path.join(FOLDER_PATH,'MF_10_256.pth')
     if not os.path.exists(MODEL_PATH):
         print("Model doesn't exist.\n")
         sys.exit()

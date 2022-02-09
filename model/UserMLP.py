@@ -9,7 +9,7 @@ class CreatingUserId(nn.Module):
                  num_age,
                  num_month,
                  num_day,
-                 num_dim=4,
+                 num_dim=8,
                  num_factor=32,
                  ):
         super(CreatingUserId, self).__init__()
@@ -30,10 +30,10 @@ class CreatingUserId(nn.Module):
         self.Embedding_list = nn.ModuleList([self.dayofweek_embedding, self.time_embedding,self.sex_embedding,
                                         self.age_embedding, self.month_embedding, self.day_embedding])
 
-        self.MLP = nn.Sequential(nn.Linear(num_dim * 6, num_factor),
-                                          nn.BatchNorm1d(num_factor),
-                                          nn.LeakyReLU()
-                                          )
+        # self.MLP = nn.Sequential(nn.Linear(num_dim * 6, num_factor),
+        #                                   nn.BatchNorm1d(num_factor),
+        #                                   nn.LeakyReLU()
+        #                                   )
         self.init_weight()
 
     def init_weight(self):
@@ -58,6 +58,6 @@ class CreatingUserId(nn.Module):
 
         # dayofweek, time, sex, age, month, day embedding concatenation
         user_vector = torch.cat([dayofweek_embedded, time_embedded, sex_embedded, age_embedded, month_embedded, day_embedded], dim=-1)
-        output_userId = self.MLP(user_vector)
-
+        # output_userId = self.MLP(user_vector)
+        output_userId = user_vector
         return output_userId
