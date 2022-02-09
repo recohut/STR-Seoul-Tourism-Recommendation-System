@@ -196,7 +196,7 @@ if __name__ == '__main__' :
             if(rank_weight := total_ranking.get(destionation_name)) is None:
                 total_ranking[destionation_name]=[0,0]
             total_ranking[destionation_name][0]+=pred_visitor
-            total_ranking[destionation_name][1]+=1/pred_congestion
+            total_ranking[destionation_name][1]+=pred_congestion
 
     sorted_total_ranking = sorted(total_ranking.items(), key=lambda item:item[1][0], reverse=True)
     sorted_total_ranking_with_congestion = []
