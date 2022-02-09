@@ -208,3 +208,4 @@ if __name__ == '__main__' :
     for k in range(topk):
         print(f'{k+1}등 :\t{sorted_total_ranking[k]}')
 
+print('왜 않되')
