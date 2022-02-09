@@ -192,7 +192,7 @@ if __name__ == '__main__' :
             if(rank_weight := total_ranking.get(destionation_name)) is None:
                 total_ranking[destionation_name]=[0,0]
             total_ranking[destionation_name][0]+=pred_visitor
-            total_ranking[destionation_name][1]+=pred_congestion
+            total_ranking[destionation_name][1]+=1/pred_congestion
 
     sorted_total_ranking = sorted(total_ranking.items(), key=lambda item:item[1][0], reverse=True)
     sorted_total_ranking_with_congestion = []
@@ -202,7 +202,7 @@ if __name__ == '__main__' :
     for k in range(topk):
         dest = sorted_total_ranking[k]
         sorted_total_ranking_with_congestion.append(dest)
-        print(f'{k+1}등:{dest[0]:20}누적 visitor={dest[1][0]:<10.5f}누적 congestion={dest[1][1]:<10.5f} ')
+        print(f'{k+1}등:누적 visitor={dest[1][0]:<10.5f}누적 congestion={dest[1][1]:<10.5f} {dest[0]:20}')
 
     if check_congestion:
         print(f'\n-------------------혼잡도를 고려한 랭킹을 다시 하겠습니다.-------------------')
@@ -210,9 +210,10 @@ if __name__ == '__main__' :
         for i,dest in enumerate(sorted_total_ranking_with_congestion):
             total_ranking_congest[dest[0]]=total_ranking[dest[0]][1]*np.reciprocal(np.log2(i+2))
 
+
         sorted_total_ranking_with_congestion = sorted(total_ranking_congest.items(), key=lambda item:item[1], reverse=True)
 
         print(f'-------------------혼잡도를 고려한 전체 Top {topk}등 추천지 입니다.-------------------\n')
         for k in range(topk):
-            print(f'{k+1}등:{sorted_total_ranking_with_congestion[k][0]:20}ndcg varation:{sorted_total_ranking_with_congestion[k][1]:<10.5f}')
+            print(f'{k+1}등:ndcg varation:{sorted_total_ranking_with_congestion[k][1]:<10.5f}{sorted_total_ranking_with_congestion[k][0]:20}')
 
