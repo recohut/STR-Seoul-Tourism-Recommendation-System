@@ -1,3 +1,7 @@
+'''
+hj04143@gmail.com
+https://github.com/changhyeonnam/STRMF
+'''
 # -*- coding: utf-8 -*-
 import os
 import sys

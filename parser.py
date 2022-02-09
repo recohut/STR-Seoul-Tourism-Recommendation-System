@@ -1,3 +1,7 @@
+'''
+hj04143@gmail.com
+https://github.com/changhyeonnam/STRMF
+'''
 import argparse
 
 parser = argparse.ArgumentParser(description="Seoul Tourism Recommendation using Matrix Factorzation")

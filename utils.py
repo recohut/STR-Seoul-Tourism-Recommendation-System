@@ -1,6 +1,6 @@
 '''
-code from IkGyu-Lee
-link : https://github.com/IkGyu-Lee
+hj04143@gmail.com
+https://github.com/changhyeonnam/STRMF
 '''
 
 import pandas as pd

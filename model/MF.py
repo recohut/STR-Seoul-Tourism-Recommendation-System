@@ -1,3 +1,8 @@
+'''
+made by changhyeonnam
+hj04143@gmail.com
+https://github.com/changhyeonnam/STRMF
+'''
 import torch
 import torch.nn as nn
 from model.UserMLP import CreatingUserId

@@ -1,3 +1,8 @@
+'''
+hj04143@gmail.com
+https://github.com/changhyeonnam/STRMF
+'''
+
 import os
 import random
 import torch
