@@ -105,7 +105,7 @@ if __name__ == '__main__' :
     print("Load Destination_info complete\n")
     print("-------------------Load Model-------------------\n")
     FOLDER_PATH ='saved_model'
-    MODEL_PATH = os.path.join(FOLDER_PATH,'MF_20_256.pth')
+    MODEL_PATH = os.path.join(FOLDER_PATH,'MF_20_256_2.pth')
     if not os.path.exists(MODEL_PATH):
         print("Model doesn't exist.\n")
         sys.exit()
@@ -117,12 +117,12 @@ if __name__ == '__main__' :
                                 num_month=num_month,
                                 num_day=num_day,
                                 num_destination=num_destination,
-                                num_dim=4,
+                                num_dim=8,
                                 num_factor=32, )
     model.load_state_dict(torch.load(MODEL_PATH,map_location=device))
     print("Load Model complete\n")
 
-    topk = 14
+    topk = 30
     total_ranking = {}
 
     for i,user_input in enumerate(RecSys_total_input):
@@ -145,12 +145,12 @@ if __name__ == '__main__' :
 
         for k in range(topk):
             destionation_name = user_df.iloc[k, 1]
-            one_over_congestion = user_df.iloc[k, 2]
-            print(f'{k+1}등:\t{one_over_congestion}\t{destionation_name}')
+            pred_target = user_df.iloc[k, 2]
+            print(f'{k+1}등:\t{pred_target}\t{destionation_name}')
 
             if(rank_weight := total_ranking.get(destionation_name)) is None:
                 total_ranking[destionation_name]=0
-            total_ranking[destionation_name]+=one_over_congestion*100
+            total_ranking[destionation_name]+=pred_target
 
     print(f'-------------------전체 Top {topk}등 추천지 입니다.-------------------\n')
     sorted_total_ranking = sorted(total_ranking.items(), key=lambda item:item[1], reverse=True)

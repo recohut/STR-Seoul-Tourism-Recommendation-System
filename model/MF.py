@@ -30,13 +30,12 @@ class MatrixFactorization(nn.Module):
     def forward(self,  dayofweek, time, sex, age, month, day, destination):
         user_embedding = self.user_embedding(dayofweek, time, sex, age, month, day)
         item_embedding = self.item_embedding(destination)
-        user_embedding = torch.unsqueeze(user_embedding,1)
-        item_embedding = torch.unsqueeze(item_embedding,1)
         # print(f'user_embedding: {user_embedding.shape}, item_embedding: {item_embedding.shape}')
 
-        output = torch.bmm(user_embedding,
-                          torch.transpose(item_embedding,1,2))
-        output = torch.squeeze(output)
+        output = torch.mm(user_embedding,
+                          torch.transpose(item_embedding,0,1))
 
+        output = torch.diagonal(output,0)
+        output = output.view(-1)
         # print(f'output shpae: {output.shape}')
         return output
