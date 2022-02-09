@@ -77,10 +77,10 @@ Load Model complete
 -------------------혼잡도를 고려한 랭킹을 다시 하겠습니다.-------------------
 -------------------혼잡도를 고려한 전체 Top 5등 추천지 입니다.-------------------
 
-1등:ndcg varation:14.21506  대학로                 
-2등:ndcg varation:-2.27902  명동                  
-3등:ndcg varation:-2.89158  홍대                  
-4등:ndcg varation:-3.18082  인사동                 
-5등:ndcg varation:-5.61235  한국종합무역센터(코엑스)                    
+1등:ndcg variation:14.21506  대학로                 
+2등:ndcg variation:-2.27902  명동                  
+3등:ndcg variation:-2.89158  홍대                  
+4등:ndcg variation:-3.18082  인사동                 
+5등:ndcg variation:-5.61235  한국종합무역센터(코엑스)                    
 
 ```
