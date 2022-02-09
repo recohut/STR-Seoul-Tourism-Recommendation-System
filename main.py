@@ -55,7 +55,7 @@ model = MatrixFactorization(num_dayofweek = num_dayofweek,
                              num_day = num_day,
                              num_destination = num_destination,
                              num_dim=8,
-                             num_factor=32,)
+                             num_factor=48,)
 
 model.to(device)
 optimizer = optim.Adam(model.parameters(), lr=args.learning_rate)
