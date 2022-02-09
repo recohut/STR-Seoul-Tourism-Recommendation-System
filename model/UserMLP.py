@@ -43,9 +43,9 @@ class CreatingUserId(nn.Module):
                     nn.init.normal_(layer.weight)
 
             # MLP weight initialization
-            for layer in self.MLP:
-                if isinstance(layer, nn.Linear):
-                    nn.init.kaiming_uniform_(layer.weight)
+            # for layer in self.MLP:
+            #     if isinstance(layer, nn.Linear):
+            #         nn.init.kaiming_uniform_(layer.weight)
 
     def forward(self, dayofweek, time, sex, age, month, day):
         # Embedding
