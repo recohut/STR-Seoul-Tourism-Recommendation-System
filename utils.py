@@ -62,10 +62,10 @@ class Preprocessing():
         df2020 = total_df[total_df['year']==2020]
 
         # congetion^-1
-        total_df[['congestion_1','congestion_2']] = 1/total_df[['congestion_1','congestion_2']]
-        df2018[['congestion_1','congestion_2']] = 1/df2018[['congestion_1','congestion_2']]
-        df2019[['congestion_1','congestion_2']] = 1/df2019[['congestion_1','congestion_2']]
-        df2020[['congestion_1','congestion_2']] = 1/df2020[['congestion_1','congestion_2']]
+        # total_df[['congestion_1','congestion_2']] = 1/total_df[['congestion_1','congestion_2']]
+        # df2018[['congestion_1','congestion_2']] = 1/df2018[['congestion_1','congestion_2']]
+        # df2019[['congestion_1','congestion_2']] = 1/df2019[['congestion_1','congestion_2']]
+        # df2020[['congestion_1','congestion_2']] = 1/df2020[['congestion_1','congestion_2']]
 
         # congestion normalize & train test split
         if self.shuffle == False:
