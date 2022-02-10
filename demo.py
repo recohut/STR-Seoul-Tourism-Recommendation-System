@@ -223,5 +223,5 @@ if __name__ == '__main__' :
 
         print(f'-------------------혼잡도를 고려한 전체 Top {topk}등 추천지 입니다.-------------------\n')
         for k in range(topk):
-            print(f'{k+1}등:ndcg varation:{sorted_total_ranking_with_congestion[k][1]:<10.5f}{sorted_total_ranking_with_congestion[k][0]:20}')
+            print(f'{k+1}등:DCG varation:{sorted_total_ranking_with_congestion[k][1]:<10.5f}{sorted_total_ranking_with_congestion[k][0]:20}')
 

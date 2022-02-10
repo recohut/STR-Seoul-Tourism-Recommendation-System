@@ -16,7 +16,7 @@ def train(model:nn.Module,
           print_cost=True):
 
     total_batch_len = len(dataloader)
-
+    avg_loss_list = []
     for epochs in range(0,epochs):
         total_loss = 0
         for destination, time, sex, age, dayofweek, month, day, target in dataloader:
@@ -31,7 +31,7 @@ def train(model:nn.Module,
             optimizer.step()
             total_loss += loss
         train_average_loss = total_loss/total_batch_len
-
+        avg_loss_list.append(train_average_loss)
         model.eval()
         test_average_loss = test(model= model,
                                  dataloader= test_dataloader,
@@ -41,4 +41,4 @@ def train(model:nn.Module,
         if print_cost :
             print(f"Epoch: {epochs+1} \t Train average RMSE Loss: {train_average_loss} \t Test average RMSE Loss: {test_average_loss}")
 
-
+        return avg_loss_list

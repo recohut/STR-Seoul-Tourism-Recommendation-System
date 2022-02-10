@@ -7,6 +7,7 @@ import os
 import random
 import torch
 import warnings
+import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 import torch.optim as optim
 from parser import args
@@ -74,14 +75,14 @@ if __name__ == '__main__' :
     print('-------------------Train Start-------------------')
     start_time = datetime.now()
 
-    train(model=model,
-          optimizer=optimizer,
-          epochs=args.epochs,
-          dataloader=train_dataloader,
-          test_dataloader=test_dataloader,
-          criterion=criterion,
-          device=device,
-          print_cost=True)
+    loss_list = train(model=model,
+                      optimizer=optimizer,
+                      epochs=args.epochs,
+                      dataloader=train_dataloader,
+                      test_dataloader=test_dataloader,
+                      criterion=criterion,
+                      device=device,
+                      print_cost=True)
 
     end_time = datetime.now()
     print('-------------------Train Finished-------------------')
@@ -96,3 +97,12 @@ if __name__ == '__main__' :
         MODEL_PATH = os.path.join(FOLDER_PATH, f'MF_{args.epochs}_{args.batch_size}_{target_name}.pth')
         torch.save(model.state_dict(), MODEL_PATH)
 
+    FOLDER_PATH_PLOT = 'plot'
+    if not os.path.exists(FOLDER_PATH_PLOT):
+        os.mkdir(FOLDER_PATH_PLOT)
+    PLOT_PATH = os.path.join(FOLDER_PATH, f'losscurve_{args.epochs}_{args.batch_size}_{target_name}_{arg.shu}.png')
+
+    plt.plot(range(0,args.epochs),loss_list)
+    plt.xlabel('epoch')
+    plt.ylabel('RMSE')
+    plt.savefig(PLOT_PATH)
