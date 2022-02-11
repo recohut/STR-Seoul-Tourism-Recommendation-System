@@ -13,7 +13,6 @@ from utils import Tourism, Preprocessing, Input_Dataset
 from model.MF import MatrixFactorization
 import numpy as np
 
-
 '''
     date : 2018-01-01 ~ 2020-12-31
     destination : 관광지 코드
