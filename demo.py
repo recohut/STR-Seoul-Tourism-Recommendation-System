@@ -83,6 +83,12 @@ def age2range(age):
 def sex2int(sex):
     return 1 if sex[0]=='남'else 0
 
+def load_congestion(df,dayofweek, time, month, day):
+    dayofweek, time, day, month = dayofweek.item(), time.item(), day.item(), month.item()
+    new_df = df[((df['month'] ==month) & (df['day']==day)) & ((df['dayofweek']==dayofweek) & (df['time'] ==time))]
+    return new_df['congestion_1']
+
+
 if __name__ == '__main__' :
     # check device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -145,8 +151,7 @@ if __name__ == '__main__' :
     print("-------------------Load Model-------------------\n")
     FOLDER_PATH ='saved_model'
     MODEL_PATH_VISITOR = os.path.join(FOLDER_PATH,'MF_20_256_visitor.pth')
-    MODEL_PATH_CONGESTION = os.path.join(FOLDER_PATH,'MF_20_256_congestion_1.pth')
-    if not os.path.exists(MODEL_PATH_VISITOR) or not os.path.exists(MODEL_PATH_CONGESTION):
+    if not os.path.exists(MODEL_PATH_VISITOR) :
         print("Model doesn't exist.\n")
         sys.exit()
     model_visitor = MatrixFactorization(num_dayofweek=num_dayofweek,
@@ -158,19 +163,11 @@ if __name__ == '__main__' :
                                 num_destination=num_destination,
                                 num_dim=8,
                                 num_factor=48, )
-    model_congestion = MatrixFactorization(num_dayofweek=num_dayofweek,
-                                num_time=num_time,
-                                num_sex=num_sex,
-                                num_age=num_age,
-                                num_month=num_month,
-                                num_day=num_day,
-                                num_destination=num_destination,
-                                num_dim=8,
-                                num_factor=48, )
+
 
     model_visitor.load_state_dict(torch.load(MODEL_PATH_VISITOR,map_location=device))
-    model_congestion.load_state_dict(torch.load(MODEL_PATH_CONGESTION,map_location=device))
     print("Load Model complete")
+    df = pd.read_csv('congestion_1_2.csv')
 
     total_ranking = {}
     for i,user_input in enumerate(RecSys_total_input):
@@ -184,22 +181,22 @@ if __name__ == '__main__' :
             dayofweek, time, sex, age, month, day = dayofweek.to(device), time.to(device), sex.to(device), age.to(
                 device), month.to(device), day.to(device)
             pred_visitor = model_visitor(dayofweek, time, sex, age, month, day, destination)
-            pred_congestion = model_congestion(dayofweek, time, sex, age, month, day, destination)
+            saved_congestion = load_congestion(df=df,dayofweek=dayofweek[0], time=time[0],month= month[0],day= day[0])
         pred_visitor = pred_visitor.tolist()
-        pred_congestion = pred_congestion.tolist()
+        saved_congestion = saved_congestion.tolist()
         user_df['visitor'] = pred_visitor
-        user_df['congestion'] = pred_congestion
+        user_df['congestion'] = saved_congestion
         user_df = user_df.sort_values(by='visitor', ascending=False)
 
         print(f'\n-------------------{i+1}번째 사람을 위한 Top {topk}등 추천지 입니다.-------------------\n')
 
-        for k in range(topk):
+        for k in range(30):
             destionation_name = user_df.iloc[k,1]
             pred_visitor = user_df.iloc[k,2]
             pred_congestion = user_df.iloc[k,3]
             print(f'{k+1}등\t visitor={pred_visitor}\t {destionation_name}')
-
-            if(rank_weight := total_ranking.get(destionation_name)) is None:
+            rank_weight = total_ranking.get(destionation_name)
+            if rank_weight is None:
                 total_ranking[destionation_name]=[0,0]
             total_ranking[destionation_name][0]+=pred_visitor
             total_ranking[destionation_name][1]+=pred_congestion
@@ -219,7 +216,6 @@ if __name__ == '__main__' :
         total_ranking_congest = {}
         for i,dest in enumerate(sorted_total_ranking_with_congestion):
             total_ranking_congest[dest[0]]=1/total_ranking[dest[0]][1]*np.reciprocal(np.log2(i+2))
-
 
         sorted_total_ranking_with_congestion = sorted(total_ranking_congest.items(), key=lambda item:item[1], reverse=True)
 
