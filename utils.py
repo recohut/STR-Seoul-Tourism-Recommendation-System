@@ -87,7 +87,7 @@ class Preprocessing():
         print("Complete Train Test Split")
         return train_df, test_df
 
-    def destination_list(self):
+    def destination_list(self,genre_list):
         des_list = list(self.destination_id_name_df['destination'].unique())
         return self.destination_id_name_df, des_list
 
@@ -122,6 +122,7 @@ class Input_Dataset(Dataset):
     def __init__(self, destination_list, RecSys_input):
         super(Input_Dataset, self).__init__()
         self.destination_list = destination_list
+        self.num_dest = len(destination_list)
         self.RecSys_input = RecSys_input
         self.month, self.day, self.dayofweek, self.time, self.sex, self.age, self.destination = self.change_tensor()
 
@@ -132,12 +133,11 @@ class Input_Dataset(Dataset):
         return self.destination[idx], self.time[idx], self.sex[idx], self.age[idx], self.dayofweek[idx], self.month[idx], self.day[idx]
 
     def change_tensor(self):
-        month = torch.tensor([self.RecSys_input[0]] * 100)
-        day = torch.tensor([self.RecSys_input[1]] * 100)
-        dayofweek = torch.tensor([self.RecSys_input[2]] * 100)
-        time = torch.tensor([self.RecSys_input[3]] * 100)
-        age = torch.tensor([self.RecSys_input[4]] * 100)
-        sex = torch.tensor([self.RecSys_input[5]] * 100)
+        month = torch.tensor([self.RecSys_input[0]] * self.num_dest)
+        day = torch.tensor([self.RecSys_input[1]] * self.num_dest)
+        dayofweek = torch.tensor([self.RecSys_input[2]] * self.num_dest)
+        time = torch.tensor([self.RecSys_input[3]] * self.num_dest)
+        age = torch.tensor([self.RecSys_input[4]] * self.num_dest)
+        sex = torch.tensor([self.RecSys_input[5]] * self.num_dest)
         destination = torch.tensor(self.destination_list)
-
         return month, day, dayofweek, time, sex, age, destination

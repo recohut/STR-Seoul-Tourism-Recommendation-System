@@ -1,15 +1,20 @@
+'''
+hj04143@gmail.com
+https://github.com/changhyeonnam/STRMF
+'''
 # -*- coding: utf-8 -*-
 import os
 import sys
 import random
-
-import pandas as pd
 import torch
 import warnings
 from torch.utils.data import DataLoader
 from utils import Tourism, Preprocessing, Input_Dataset
 from model.MF import MatrixFactorization
 import numpy as np
+import pandas as pd
+
+
 
 '''
     date : 2018-01-01 ~ 2020-12-31
@@ -79,21 +84,42 @@ def age2range(age):
 def sex2int(sex):
     return 1 if sex[0]=='남'else 0
 
-def load_congestion(df,dayofweek, time, month, day):
+def destint2str(li):
+    dest_dict = {'1':'역사관광지','2':'휴양관광지','3':'체험관광지','4':'문화시설','5':'건축/조형물','6':'자연관광지','7':'쇼핑'}
+    dest_li=[]
+    for val in li:
+        dest_li.append(dest_dict[val])
+    return dest_li
+
+def load_congestion(destination_id_name_df,df,dayofweek, time, month, day):
     dayofweek, time, day, month = dayofweek.item(), time.item(), day.item(), month.item()
     new_df = df[((df['month'] ==month) & (df['day']==day)) & ((df['dayofweek']==dayofweek) & (df['time'] ==time))]
+
+    new_df = new_df[new_df.destination.isin(destination_id_name_df.destination)]
+
     return new_df['congestion_1']
+
+def filter_destination(DEST_PATH,genre_list):
+    df = pd.read_csv(DEST_PATH)
+    newdf = pd.DataFrame(columns=['destination', 'destination_name', 'large_category', 'middle_category',
+                                  'small_category', 'large_category_name', 'middle_category_name',
+                                  'small_category_name', 'x', 'y'])
+    for i in genre_list:
+        ndf = df[(df['middle_category_name'] == i)]
+        newdf = pd.concat([newdf, ndf],ignore_index=True)
+    des_list = newdf['destination'].to_list()
+    return newdf,des_list
 
 if __name__ == '__main__' :
     # check device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f'device: {device}')
 
-    # print GPU information
-    if torch.cuda.is_available():
-        print('Current cuda device:', torch.cuda.current_device())
-        print('Count of using GPUs:', torch.cuda.device_count())
-
+    # # print GPU information
+    # if torch.cuda.is_available():
+    #     print('Current cuda device:', torch.cuda.current_device())
+    #     print('Count of using GPUs:', torch.cuda.device_count())
+    #
     # print("몇명이서 관광할 계획이신가요? ex) 3명")
     # num_people = input_filterchar(input())
     # print("몇월 몇일 무슨 요일에 놀러갈 계획이신가요? ex) 1월 3일 수요일")
@@ -116,6 +142,12 @@ if __name__ == '__main__' :
     # print("\n변환된 user info는 다음과 같습니다.\n")
     # for i in RecSys_total_input:
     #     print(i)
+    # print('\n')
+    # # select destination genre
+    # print("어떤 장르의 관광지를 원하시나요? (3개 이상 골라주세요) ex) 1,2,3"
+    #       "\n1.역사관광지 \t2.휴양관광지\t3.체험관광지\t4.문화시설\t5.건축/조형물\t6.자연관광지\t7.쇼핑")
+    # genre_list = destint2str(input().split(','))
+    #
     #
     # # check for congestion
     # print("혼잡도를 고려한 관광지 추천 리스트를 원하시나요?")
@@ -132,37 +164,41 @@ if __name__ == '__main__' :
     with open('sample_input.txt',mode='r') as f:
         for line in f:
             RecSys_total_input.append([int(x) for x in line.split(',')])
+
+    genre_list =destint2str('1,4,7'.split(','))
+
+
     print("\n변환된 user info는 다음과 같습니다.\n")
     for i in RecSys_total_input:
         print(i)
 
     print("\n-------------------Load Destination_info-------------------\n")
     data = Preprocessing(shuffle=False)
+    DATA_PATH = 'destination_id_name_genre_coordinate.csv'
     num_destination, num_time, num_sex, num_age, num_dayofweek, num_month, num_day = data.get_num()
-    destination_id_name_df, destination_list = data.destination_list()
-    batch_candidate = 100
+    destination_id_name_df, destination_list = filter_destination(DATA_PATH,genre_list)
+    batch_candidate = len(destination_list)
     print("Load Destination_info complete\n")
 
     print("-------------------Load Model-------------------\n")
-    FOLDER_PATH = 'saved_model'
-    MODEL_PATH_VISITOR = os.path.join(FOLDER_PATH, 'MF_20_256_visitor_1.pth')
-    if not os.path.exists(MODEL_PATH_VISITOR):
+    FOLDER_PATH ='saved_model'
+    MODEL_PATH_VISITOR = os.path.join(FOLDER_PATH,'MF_20_256_visitor.pth')
+    if not os.path.exists(MODEL_PATH_VISITOR) :
         print("Model doesn't exist.\n")
         sys.exit()
     model_visitor = MatrixFactorization(num_dayofweek=num_dayofweek,
-                                        num_time=num_time,
-                                        num_sex=num_sex,
-                                        num_age=num_age,
-                                        num_month=num_month,
-                                        num_day=num_day,
-                                        num_destination=num_destination,
-                                        num_dim=8,
-                                        num_factor=48, )
+                                num_time=num_time,
+                                num_sex=num_sex,
+                                num_age=num_age,
+                                num_month=num_month,
+                                num_day=num_day,
+                                num_destination=num_destination,
+                                num_dim=8,
+                                num_factor=48, )
 
 
-    model_visitor.load_state_dict(torch.load(MODEL_PATH_VISITOR, map_location=device))
+    model_visitor.load_state_dict(torch.load(MODEL_PATH_VISITOR,map_location=device))
     print("Load Model complete")
-
     df = pd.read_csv('congestion_1_2.csv')
 
     total_ranking = {}
@@ -177,25 +213,27 @@ if __name__ == '__main__' :
             dayofweek, time, sex, age, month, day = dayofweek.to(device), time.to(device), sex.to(device), age.to(
                 device), month.to(device), day.to(device)
             pred_visitor = model_visitor(dayofweek, time, sex, age, month, day, destination)
-            saved_congestion = load_congestion(df=df,dayofweek=dayofweek[0], time=time[0],month= month[0],day= day[0])
-        pred_visitor = pred_visitor.tolist()
-        saved_congestion = saved_congestion.tolist()
-        user_df['visitor'] = pred_visitor
-        user_df['congestion'] = saved_congestion
-        user_df = user_df.sort_values(by='visitor', ascending=False)
+            saved_congestion = load_congestion(destination_id_name_df,df=df,dayofweek=dayofweek[0], time=time[0],month= month[0],day= day[0],)
+            pred_visitor = pred_visitor.tolist()
+            saved_congestion = saved_congestion.tolist()
+            user_df['visitor'] = pred_visitor
+            user_df['congestion'] = saved_congestion
+            user_df = user_df.sort_values(by='visitor', ascending=False)
 
-        print(f'\n-------------------{i+1}번째 사람을 위한 Top {topk}등 추천지 입니다.-------------------\n')
-
-        for k in range(30):
-            destionation_name = user_df.iloc[k,1]
-            pred_visitor = user_df.iloc[k,2]
-            pred_congestion = user_df.iloc[k,3]
-            print(f'{k+1}등\t visitor={pred_visitor}\t {destionation_name}')
-            rank_weight = total_ranking.get(destionation_name)
-            if rank_weight is None:
-                total_ranking[destionation_name]=[0,0]
-            total_ranking[destionation_name][0]+=pred_visitor
-            total_ranking[destionation_name][1]+=pred_congestion
+            print(f'\n-------------------{i+1}번째 사람을 위한 Top {topk}등 추천지 입니다.-------------------\n')
+            for k in range(batch_candidate):
+                destionation_name = user_df.iloc[k,1]
+                small_genre = user_df.iloc[k,7]
+                middle_genre= user_df.iloc[k,6]
+                pred_visitor = user_df.iloc[k,10]
+                pred_congestion = user_df.iloc[k,11]
+                print(f'{k+1}등\tvisitor={pred_visitor}\t {destionation_name}')
+                print(f'{k+1}등\t{middle_genre}\t{small_genre}')
+                rank_weight = total_ranking.get(destionation_name)
+                if rank_weight is None:
+                    total_ranking[destionation_name]=[0,0]
+                total_ranking[destionation_name][0]+=pred_visitor
+                total_ranking[destionation_name][1]+=pred_congestion
 
     sorted_total_ranking = sorted(total_ranking.items(), key=lambda item:item[1][0], reverse=True)
     sorted_total_ranking_with_congestion = []

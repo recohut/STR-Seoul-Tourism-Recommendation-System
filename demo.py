@@ -83,12 +83,28 @@ def age2range(age):
 def sex2int(sex):
     return 1 if sex[0]=='남'else 0
 
+def destint2str(li):
+    dest_dict = {'1':'역사관광지','2':'휴양관광지','3':'체험관광지','4':'문화시설','5':'건축/조형물','6':'자연관광지','7':'쇼핑'}
+    dest_li=[]
+    for val in li:
+        dest_li.append(dest_dict[val])
+    return dest_li
+
 def load_congestion(df,dayofweek, time, month, day):
     dayofweek, time, day, month = dayofweek.item(), time.item(), day.item(), month.item()
     new_df = df[((df['month'] ==month) & (df['day']==day)) & ((df['dayofweek']==dayofweek) & (df['time'] ==time))]
     return new_df['congestion_1']
 
-
+def filter_destination(DEST_PATH,genre_list):
+    df = pd.read_csv(DEST_PATH)
+    newdf = pd.DataFrame(columns=['destination', 'destination_name', 'large_category', 'middle_category',
+                                  'small_category', 'large_category_name', 'middle_category_name',
+                                  'small_category_name', 'x', 'y'])
+    for i in genre_list:
+        ndf = df[(df['middle_category_name'] == i)]
+        newdf = pd.concat([newdf, ndf])
+    des_list = newdf['destination'].to_list()
+    return newdf,des_list
 if __name__ == '__main__' :
     # check device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -121,6 +137,12 @@ if __name__ == '__main__' :
     print("\n변환된 user info는 다음과 같습니다.\n")
     for i in RecSys_total_input:
         print(i)
+    print('\n')
+    # select destination genre
+    print("어떤 장르의 관광지를 원하시나요? (3개 이상 골라주세요) ex) 1,2,3"
+          "\n1.역사관광지 \t2.휴양관광지\t3.체험관광지\t4.문화시설\t5.건축/조형물\t6.자연관광지\t7.쇼핑")
+    genre_list = destint2str(input().split(','))
+
 
     # check for congestion
     print("혼잡도를 고려한 관광지 추천 리스트를 원하시나요?")
@@ -142,10 +164,11 @@ if __name__ == '__main__' :
     #     print(i)
 
     print("\n-------------------Load Destination_info-------------------\n")
-    data = Preprocessing(shuffle=False)
+    # data = Preprocessing(shuffle=False)
+    DATA_PATH = 'destination_id_name_genre_coordinate.csv'
     num_destination, num_time, num_sex, num_age, num_dayofweek, num_month, num_day = data.get_num()
-    destination_id_name_df, destination_list = data.destination_list()
-    batch_candidate = 100
+    destination_id_name_df, destination_list = filter_destination(DATA_PATH,genre_list)
+    batch_candidate = len(destination_list)
     print("Load Destination_info complete\n")
 
     print("-------------------Load Model-------------------\n")
