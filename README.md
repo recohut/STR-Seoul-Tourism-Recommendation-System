@@ -13,7 +13,8 @@ unzip Outzip1.zip
 python demo.py
 ```
 ### Result
-<img src="https://imgur.com/Bp1xMwL"/>
+(image)[https://imgur.com/Bp1xMwL]
+
 ```bash
 python demo.py
 device: cpu
