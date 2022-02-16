@@ -13,7 +13,7 @@ unzip Outzip1.zip
 python demo.py
 ```
 ### Result
-[image](https://imgur.com/Bp1xMwL)
+!(image)[https://imgur.com/Bp1xMwL]
 
 ```bash
 python demo.py
