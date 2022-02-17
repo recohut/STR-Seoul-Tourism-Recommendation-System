@@ -29,18 +29,24 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, QuantileTransfor
 '''
 
 class Preprocessing():
-    def __init__(self, shuffle=True):
+    def __init__(self, shuffle=True,use_demo=False):
         self.shuffle = shuffle
-        self.merged_df, self.destination_id_name_df = self.read_dataset()
-
-    def read_dataset(self):
-        # Dataframe 불러오기
-        # merged_df = pd.read_csv("../Preprocessing/Datasets_v3.1/Datasets_v3.1.txt", sep='|')
-        # destination_id_name_df = pd.read_csv("../Preprocessing/Datasets_v3.1/destination_id_name.csv")
-        merged_df = pd.read_csv("dataset/Datasets_v3.1.txt", sep='|')
-        destination_id_name_df = pd.read_csv('dataset/destination_id_name.csv')
+        self.use_demo = use_demo
+        if self.use_demo:
+            self.destination_id_name_df = self._read_Destination_info()
+        else:
+            self.merged_df, self.destination_id_name_df = self._read_dataset(),self._read_Destination_info()
         print("Complete Reading Datasets")
-        return merged_df, destination_id_name_df
+
+    def _read_dataset(self):
+        # merged_df = pd.read_csv("../Preprocessing/Datasets_v3.1/Datasets_v3.1.txt", sep='|')
+        merged_df = pd.read_csv("dataset/Datasets_v3.1.txt", sep='|')
+        return merged_df
+
+    def _read_Destination_info(self):
+        # destination_id_name_df = pd.read_csv("../Preprocessing/Datasets_v3.1/destination_id_name.csv")
+        destination_id_name_df = pd.read_csv('dataset/destination_id_name.csv')
+        return destination_id_name_df
 
     def get_num(self):
         merged_df = self.merged_df.copy()

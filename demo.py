@@ -165,7 +165,7 @@ if __name__ == '__main__' :
 
     print("\n-------------------Load Destination_info-------------------\n")
     # data = Preprocessing(shuffle=False)
-    DATA_PATH = 'destination_id_name_genre_coordinate.csv'
+    DATA_PATH = 'dataset/destination_id_name_genre_coordinate.csv'
     num_destination, num_time, num_sex, num_age, num_dayofweek, num_month, num_day = data.get_num()
     destination_id_name_df, destination_list = filter_destination(DATA_PATH,genre_list)
     batch_candidate = len(destination_list)
