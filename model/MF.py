@@ -6,6 +6,7 @@ https://github.com/changhyeonnam/STRMF
 import torch
 import torch.nn as nn
 from model.UserMLP import CreatingUserId
+from parser import args
 
 class MatrixFactorization(nn.Module):
     def __init__(self,

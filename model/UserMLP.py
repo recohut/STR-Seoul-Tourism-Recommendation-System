@@ -4,7 +4,7 @@ https://github.com/changhyeonnam/STRMF
 '''
 import torch
 import torch.nn as nn
-
+from parser import args 
 class CreatingUserId(nn.Module):
     def __init__(self,
                  num_dayofweek,
@@ -17,12 +17,18 @@ class CreatingUserId(nn.Module):
                  num_factor=32,
                  ):
         super(CreatingUserId, self).__init__()
+        
+        if args.tar == 'congestion_1' or args.tar == 'congestion_2':
+            num_dim = num_factor//4
+        else:
+            num_dim = num_factor//6
 
-        # userId Embedding
+        userId Embedding
         self.dayofweek_embedding = nn.Embedding(num_embeddings=num_dayofweek,
                                                   embedding_dim=num_dim)
         self.time_embedding = nn.Embedding(num_embeddings=num_time,
                                                   embedding_dim=num_dim)
+          
         self.sex_embedding = nn.Embedding(num_embeddings=num_sex,
                                                   embedding_dim=num_dim)
         self.age_embedding = nn.Embedding(num_embeddings=num_age,
@@ -31,9 +37,11 @@ class CreatingUserId(nn.Module):
                                                   embedding_dim=num_dim)
         self.day_embedding = nn.Embedding(num_embeddings=num_day,
                                                   embedding_dim=num_dim)
-        self.Embedding_list = nn.ModuleList([self.dayofweek_embedding, self.time_embedding,self.sex_embedding,
+        if args.tar == 'visitor':
+            self.Embedding_list = nn.ModuleList([self.dayofweek_embedding, self.time_embedding,self.sex_embedding,
                                         self.age_embedding, self.month_embedding, self.day_embedding])
-
+        else:
+            self.Embedding_list = nn.ModuleList([self.dayofweek_embedding, self.time_embedding, self.month_embedding,self.day_embedding])
         # self.MLP = nn.Sequential(nn.Linear(num_dim * 6, num_factor),
         #                                   nn.BatchNorm1d(num_factor),
         #                                   nn.LeakyReLU()
