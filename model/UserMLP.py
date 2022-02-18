@@ -14,16 +14,15 @@ class CreatingUserId(nn.Module):
                  num_month,
                  num_day,
                  num_dim=8,
-                 num_factor=32,
+                 num_factor=48,
                  ):
         super(CreatingUserId, self).__init__()
         
-        if args.tar == 'congestion_1' or args.tar == 'congestion_2':
+        if args.tar == 'visitor':
             num_dim = num_factor//4
         else:
             num_dim = num_factor//6
 
-        userId Embedding
         self.dayofweek_embedding = nn.Embedding(num_embeddings=num_dayofweek,
                                                   embedding_dim=num_dim)
         self.time_embedding = nn.Embedding(num_embeddings=num_time,
@@ -63,13 +62,18 @@ class CreatingUserId(nn.Module):
         # Embedding
         dayofweek_embedded = self.dayofweek_embedding(dayofweek)
         time_embedded = self.time_embedding(time)
-        sex_embedded = self.sex_embedding(sex)
-        age_embedded = self.age_embedding(age)
+        if args.tar =='visitor':
+            sex_embedded = self.sex_embedding(sex)
+            age_embedded = self.age_embedding(age)
         month_embedded = self.month_embedding(month)
         day_embedded = self.day_embedding(day)
 
         # dayofweek, time, sex, age, month, day embedding concatenation
-        user_vector = torch.cat([dayofweek_embedded, time_embedded, sex_embedded, age_embedded, month_embedded, day_embedded], dim=-1)
+        if args.tar =='visitor':
+            user_vector = torch.cat([dayofweek_embedded, time_embedded, sex_embedded, age_embedded, month_embedded, day_embedded], dim=-1)
+        else:
+            user_vector = torch.cat([dayofweek_embedded, time_embedded, month_embedded, day_embedded], dim=-1)
+
         # output_userId = self.MLP(user_vector)
         output_userId = user_vector
         return output_userId
