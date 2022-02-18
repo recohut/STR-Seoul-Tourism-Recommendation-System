@@ -61,11 +61,7 @@ class Preprocessing():
 
     def preprocessing(self):
         scaler = StandardScaler()
-
         total_df = self.merged_df.copy()
-        df2018 = total_df[total_df['year']==2018]
-        df2019 = total_df[total_df['year']==2019]
-        df2020 = total_df[total_df['year']==2020]
 
         # congetion^-1
         # total_df[['congestion_1','congestion_2']] = 1/total_df[['congestion_1','congestion_2']]
@@ -74,21 +70,16 @@ class Preprocessing():
         # df2020[['congestion_1','congestion_2']] = 1/df2020[['congestion_1','congestion_2']]
 
         # congestion normalize & train test split
-        if self.shuffle == False:
+        if self.shuffle == 0:
+            total_df[['congestion_1','congestion_2','visitor']] = scaler.fit_transform(pd.DataFrame(total_df[['congestion_1','congestion_2','visitor']]))
+            df2018 = total_df[total_df['year']==2018]
+            df2019 = total_df[total_df['year']==2019]
+            df2020 = total_df[total_df['year']==2020]
             train_df = df2018
             test_df = df2019
-            train_df['visitor'] = scaler.fit_transform(pd.DataFrame(train_df['visitor']))
-            train_df['congestion_1'] = scaler.fit_transform(pd.DataFrame(train_df['congestion_1']))
-            test_df['visitor'] = scaler.fit_transform(pd.DataFrame(test_df['visitor']))
-            test_df['congestion_1'] = scaler.fit_transform(pd.DataFrame(test_df[['congestion_1']]))
-
             print("Complete Normalize Datasets")
         else:
-            total_df['visitor'] = scaler.fit_transform(pd.DataFrame(total_df['visitor']))
-            total_df['congestion_1'] = scaler.fit_transform(pd.DataFrame(total_df['congestion_1']))
-            print("Complete Normalize Datasets")
-            train_df, test_df, y_train, y_test = train_test_split(total_df, total_df['destination'], test_size=0.3, stratify=total_df['destination'], random_state=42)
-
+            total_df[['congestion_1','congestion_2','visitor']] = scaler.fit_transform(pd.DataFrame(total_df[['congestion_1','congestion_2','visitor']]))
         print(f'len(Train dataframe): {len(train_df)}, \t len(Test dataframe): {len(test_df)}')
         print("Complete Train Test Split")
         return train_df, test_df
