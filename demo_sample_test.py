@@ -17,6 +17,7 @@ import time as ti
 from haversine import haversine
 import math
 import tqdm
+from parser import args
 '''
     date : 2018-01-01 ~ 2020-12-31
     destination : 관광지 코드
@@ -111,6 +112,25 @@ def filter_destination(DEST_PATH,genre_list):
     des_list = newdf['destination'].to_list()
     return newdf,des_list
 
+def data_sampling(data, period):
+    month_dict = {1:31,2:28,3:31,4:30,5:31,6:30,7:31,8:31,9:30,10:31,11:30,12:30}
+    new_data = data.copy()
+    period-=1
+    for i in range(1,period+1):
+        for each in data:
+            tmp = each.copy()
+            tmp[1] = tmp[1]+i
+            tmp[2] = (tmp[2]+i )%7
+            if(month_dict[tmp[0]]<tmp[1]):
+                tmp[1]=1
+                tmp[0] = tmp[0]+1
+                if tmp[0]==13:
+                    tmp[0]=1
+            new_data.append(tmp)
+    return new_data
+
+
+
 # just for visualization for laoding
 def progress_bar(text):
     ti.sleep(0.01)
@@ -170,22 +190,28 @@ if __name__ == '__main__' :
     # # input for staring point
     # print("어디서 출발하시나요? 행정구와 동을 입력해주세요. ex) 종로구 삼청동")
     # start_info = input().split(' ')
+    # print("여행 계획이 총 몇일 이신 가요? ex) 3일")
+    # duration = input()
+    # print('세개의 요소 [선호도, 혼잡도, 거리]에 대한 가중치는 각각 어떻게 둘까요? ex) 0.5,0.3,0.2 ')
+    # weight = list(map(float,input().split(',')))
+    weight=[0.6,0.2,0.2]
     start_info=['종로구', '삼청동']
     check_congestion = True
     topk = 10
+    duration=7
     # for sample testcase
     RecSys_total_input =[]
     with open('sample_input.txt',mode='r') as f:
         for line in f:
             RecSys_total_input.append([int(x) for x in line.split(',')])
+    num_people=len(RecSys_total_input)
 
-    genre_list =destint2str('1,4,7'.split(','))
+    genre_list =destint2str('4,5,7'.split(','))
 
-
-    print("\n변환된 user info는 다음과 같습니다.\n")
+    RecSys_total_input = data_sampling(RecSys_total_input,duration)
+    print("\n변환된 user info는 다음과 같습니다.")
     for i in RecSys_total_input:
         print(i)
-
     total_start = ti.time()
 
     progress_bar('Loading Dataset')
@@ -228,6 +254,7 @@ if __name__ == '__main__' :
     # print(f"Load Model complete\t{ti.time()-st2}\n")
     print(f"Load Model complete\n")
 
+    All_day_ranking=[0]*(duration)
     total_ranking = {}
     for i,user_input in enumerate(RecSys_total_input):
         user_df = destination_id_name_df
@@ -249,7 +276,6 @@ if __name__ == '__main__' :
 
             # print(f'\n-------------------{i+1}번째 사람을 위한 Top {topk}등 추천지 입니다.-------------------\n')
             for k in range(batch_candidate):
-
                 dest_pos = (user_df.iloc[k,8],user_df.iloc[k,9])
                 destionation_name = user_df.iloc[k,1]
                 small_genre = user_df.iloc[k,7]
@@ -264,53 +290,46 @@ if __name__ == '__main__' :
                     total_ranking[destionation_name]=[0,0,distance,middle_genre,small_genre]
                 total_ranking[destionation_name][0]+=pred_visitor
                 total_ranking[destionation_name][1]+=pred_congestion
-    sorted_total_ranking = sorted(total_ranking.items(), key=lambda item:item[1][0], reverse=True)
+        if i%num_people == num_people-1:
+            All_day_ranking[i//num_people]=total_ranking
+            total_ranking={}
 
-    print(f'\n------------------- 전체 랭킹리스트에 포함된 관광지 종류:{len(sorted_total_ranking)}-------------------\n')
-    progress_bar(f'ranking')
+    result_ranking=[0]*duration
+    total_dest={}
+    dest_list = []
+    for day,each_rank in enumerate(All_day_ranking):
+        sorted_visitor_ranking = sorted(each_rank.items(),key=lambda item:item[1][0],reverse=True)
+        sorted_congestion_ranking = sorted(each_rank.items(),key=lambda item:item[1][1],reverse=True)
+        sorted_distance_ranking = sorted(each_rank.items(),key=lambda item:item[1][2],reverse=True)
+        tmp_rank={}
+        for i,dest in enumerate(sorted_visitor_ranking):
+            tmp_rank[dest[0]] = weight[0]*(batch_candidate-i)
+        for i,dest in enumerate(sorted_congestion_ranking):
+            tmp_rank[dest[0]] += weight[1]*(batch_candidate-i)
+        for i,dest in enumerate(sorted_congestion_ranking):
+            tmp_rank[dest[0]] += weight[2]*(batch_candidate-i)
+            val = total_dest.get(dest[0])
+            if val is None:
+                total_dest[dest[0]]=[]
+            total_dest[dest[0]].append(tmp_rank[dest[0]])
 
-    print(f'\n-------------------혼잡도를 고려하지 않은 전체 Top {topk}등 추천지 입니다.-------------------\n')
-    acc_congest_min=1e9
-    for k in range(topk):
-        dest = sorted_total_ranking[k]
-        print(f'{k+1}등:누적 visitor={dest[1][0]:<10.5f}누적 congestion={dest[1][1]:<10.5f}Distance:{dest[1][2]:<10.5f}'
-              f'Middle genre:{dest[1][3]:<10}Small genre:{dest[1][4]:<10}{dest[0]:<25s}')
-        acc_congest_min = min(acc_congest_min,dest[1][1])
-    acc_congest_min = math.ceil(abs(acc_congest_min))
-    if check_congestion:
-        progress_bar(f'Re-ranking')
-        total_ranking_congest = {}
-        for i,dest in enumerate(sorted_total_ranking):
-            total_ranking_congest[dest[0]]=[1/(dest[1][1]+acc_congest_min)*np.reciprocal(np.log2(i+2)),*dest[1][2:]]
-        sorted_total_ranking_with_congestion = sorted(total_ranking_congest.items(), key=lambda item:item[1][0], reverse=True)
-        print(f'\n-------------------혼잡도를 고려한 전체 Top {topk}등 추천지 입니다.-------------------\n')
-        for k in range(topk):
-            print(f'{k+1}등:DCG variation:{sorted_total_ranking_with_congestion[k][1][0]:<10.5f}'
-                  f'Distance:{sorted_total_ranking_with_congestion[k][1][1]:<10.5f}Middle genre:{sorted_total_ranking_with_congestion[k][1][2]:<20}'
-                  f'Small genre:{sorted_total_ranking_with_congestion[k][1][3]:<20}{sorted_total_ranking_with_congestion[k][0]:<20}')
+        sorted_total_ranking = sorted(tmp_rank.items(), key=lambda item:item[1],reverse=True)
+        result_ranking[day] = sorted_total_ranking
 
-    progress_bar(f'Re-ranking')
-    print(f'\n-------------------다음은 거리를 고려한 전체 Top {topk}등 추천지 입니다.-------------------\n')
+    # caluate median ranknig
+    median_dest={}
+    for k,v in total_dest.items():
+        v.sort(reverse=True)
+        median_dest[k]=math.floor(v[len(v)//2])
 
-    total_ranking_distance = {}
-
-    if check_congestion:
-        # print(sorted_total_ranking_with_congestion)
-        for i,dest in enumerate(sorted_total_ranking_with_congestion):
-            total_ranking_distance[dest[0]]=[(1/dest[1][1])*np.reciprocal(np.log2(i+2)),*dest[1][2:]]
-        # print(total_ranking_distance)
-        sorted_total_ranking_with_distance = sorted(total_ranking_distance.items(),key=lambda item:item[1][0],reverse=True)
-        for k in range(topk):
-            print(f'{k+1}등:DCG variation:{sorted_total_ranking_with_distance[k][1][0]:<10.5f}'
-                  f'Middle genre:{sorted_total_ranking_with_distance[k][1][1]:<20}Small genre:{sorted_total_ranking_with_distance[k][1][2]:<20}{sorted_total_ranking_with_distance[k][0]:<20}')
-    else:
-        for i,dest in enumerate(sorted_total_ranking):
-            total_ranking_distance[dest[0]]=[(1/dest[1][2])*np.reciprocal(np.log2(i+2)),*dest[1][3:]]
-        sorted_total_ranking_with_distance = sorted(total_ranking_distance.items(),key=lambda item:item[1][1],reverse=True)
-
-        for k in range(topk):
-            print(f'{k+1}등:DCG variation:{sorted_total_ranking_with_distance[k][1][0]:<10.5f}'
-                  f'Middle genre:{sorted_total_ranking_with_distance[k][1][1]:<20}Small genre:{sorted_total_ranking_with_distance[k][1][2]:<20}{sorted_total_ranking_with_distance[k][0]:<20}')
+    for i,day_ranking in enumerate(result_ranking):
+        print(f'\n{i+1}일 째 추천 관광지')
+        rank = 1
+        for dest in day_ranking:
+            if median_dest[dest[0]]>dest[1]:
+                continue
+            print(f'{rank}등: {dest[0]}')
+            rank+=1
 
     end_time = ti.time()
-    # print(f'추천하는데 총 걸린 시간 : {end_time-total_start}')
+    print(f'추천하는데 총 걸린 시간 : {end_time-total_start}')

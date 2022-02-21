@@ -12,5 +12,5 @@ parser.add_argument('-op','--optimizer',default='Adam',type=str, help='optimizer
 parser.add_argument('-topk','--topk', default=20, type = int, help='top k recommends')
 parser.add_argument('-save','--save_model', default='True', type = str, help='save model')
 parser.add_argument('-shu','--shuffle', default='True', type = str, help='shuffle')
-parser.add_argument('-tar','--target', default= 'v', type = str, help='select v(vistor) or c(congestion)')
+parser.add_argument('-tar','--target', default= 'visitor', type = str, help='select v(vistor) or c(congestion)')
 args = parser.parse_args()
