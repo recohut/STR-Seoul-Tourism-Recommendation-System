@@ -1,5 +1,5 @@
-This repository is for STRMF(Seoul Tourism Recommendation using Matrix Factorization).
-STRMF recommends Seoul Tourist destination with visitor & congestion.
+This repository is for STR(Seoul-Tourism-Recommendation-System).
+STR recommends Seoul Tourist destination with visitor & congestion.
 
 Dataset is private.
 
