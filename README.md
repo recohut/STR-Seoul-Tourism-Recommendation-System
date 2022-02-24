@@ -3,6 +3,8 @@ STRMF recommends Seoul Tourist destination with visitor & congestion.
 
 Dataset is private.
 
+This project is still under development.
+
 ### Quick Start
 ```bash
 cd saved_model
