@@ -140,7 +140,7 @@ def progress_bar(text):
         t.update(2)
     t.close()
 
-if __name__ == '__main__' :
+def MF_demo():
     # check device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f'device: {device}')
@@ -150,63 +150,63 @@ if __name__ == '__main__' :
         print('Current cuda device:', torch.cuda.current_device())
         print('Count of using GPUs:', torch.cuda.device_count())
 
-    # print("몇명이서 관광할 계획이신가요? ex) 3명")
-    # num_people = input_filterchar(input())
-    # print("몇월 몇일 무슨 요일에 놀러갈 계획이신가요? ex) 1월 3일 수요일")
-    # date = list(input().split())
-    # print("시간대는 언제가 좋으신가요? ex) 13시")
-    # timezone = time2range(input_filterchar(input()))
-    # month, day, dayofweek = str2datetime(date)
-    # total_user_info =[]
-    # for i in range(1, num_people + 1):
-    #     li=[month,day,dayofweek,timezone]
-    #     print(f"{i}번째 분의 어떤 연령대 인가요?. ex) 20대")
-    #     li.append(age2range(input_filterchar(input())))
-    #     print(f"{i}번째 분의 성별은 무엇이신가요?. ex) 남성/여성")
-    #     li.append(sex2int(input()))
-    #     total_user_info.append(li)
-    # RecSys_total_input = total_user_info
-    #
-    #
-    # # print converted user info
-    # print("\n변환된 user info는 다음과 같습니다.\n")
-    # for i in RecSys_total_input:
-    #     print(i)
-    # print('\n')
-    # # select destination genre
-    # print("어떤 장르의 관광지를 원하시나요? (3개 이상 골라주세요) ex) 1,2,3"
-    #       "\n1.역사관광지 \t2.휴양관광지\t3.체험관광지\t4.문화시설\t5.건축/조형물\t6.자연관광지\t7.쇼핑")
-    # genre_list = destint2str(input().split(','))
-    #
-    #
-    # # check for congestion
+    print("몇명이서 관광할 계획이신가요? ex) 3명")
+    num_people = input_filterchar(input())
+    print("몇월 몇일 무슨 요일에 놀러갈 계획이신가요? ex) 1월 3일 수요일")
+    date = list(input().split())
+    print("시간대는 언제가 좋으신가요? ex) 13시")
+    timezone = time2range(input_filterchar(input()))
+    month, day, dayofweek = str2datetime(date)
+    total_user_info =[]
+    for i in range(1, num_people + 1):
+        li=[month,day,dayofweek,timezone]
+        print(f"{i}번째 분의 어떤 연령대 인가요?. ex) 20대")
+        li.append(age2range(input_filterchar(input())))
+        print(f"{i}번째 분의 성별은 무엇이신가요?. ex) 남성/여성")
+        li.append(sex2int(input()))
+        total_user_info.append(li)
+    RecSys_total_input = total_user_info
+
+
+    # print converted user info
+    print("\n변환된 user info는 다음과 같습니다.\n")
+    for i in RecSys_total_input:
+        print(i)
+    print('\n')
+    # select destination genre
+    print("어떤 장르의 관광지를 원하시나요? (3개 이상 골라주세요) ex) 1,2,3"
+          "\n1.역사관광지 \t2.휴양관광지\t3.체험관광지\t4.문화시설\t5.건축/조형물\t6.자연관광지\t7.쇼핑")
+    genre_list = destint2str(input().split(','))
+
+
+    # check for congestion
     # print("혼잡도를 고려한 관광지 추천 리스트를 원하시나요?")
     # check_congestion = True if input()=='네' else False
 
-    # # input for topk
-    # print("총 몇개의 관광지가 포함된 추천 리스트를 원하시요?")
-    # topk = input_filterchar(input())
-    #
-    # # input for staring point
-    # print("어디서 출발하시나요? 행정구와 동을 입력해주세요. ex) 종로구 삼청동")
-    # start_info = input().split(' ')
-    # print("여행 계획이 총 몇일 이신 가요? ex) 3일")
-    # duration = input()
-    # print('세개의 요소 [선호도, 혼잡도, 거리]에 대한 가중치는 각각 어떻게 둘까요? ex) 0.5,0.3,0.2 ')
-    # weight = list(map(float,input().split(',')))
-    weight=[0.6,0.2,0.2]
-    start_info=['종로구', '삼청동']
-    check_congestion = True
-    topk = 10
-    duration=7
-    # for sample testcase
-    RecSys_total_input =[]
-    with open('sample_input.txt',mode='r') as f:
-        for line in f:
-            RecSys_total_input.append([int(x) for x in line.split(',')])
-    num_people=len(RecSys_total_input)
+    # input for topk
+    print("총 몇개의 관광지가 포함된 추천 리스트를 원하시요?")
+    topk = input_filterchar(input())
 
-    genre_list =destint2str('4,5,7'.split(','))
+    # input for staring point
+    print("어디서 출발하시나요? 행정구와 동을 입력해주세요. ex) 종로구 삼청동")
+    start_info = input().split(' ')
+    print("여행 계획이 총 몇일 이신 가요? ex) 3일")
+    duration = input_filterchar(input())
+    print('세개의 요소 [선호도, 혼잡도, 거리]에 대한 가중치는 각각 어떻게 둘까요? ex) 0.5,0.3,0.2 ')
+    weight = list(map(float,input().split(',')))
+    # weight=[0.6,0.2,0.2]
+    # start_info=['종로구', '삼청동']
+    # check_congestion = True
+    # topk = 10
+    # duration=3
+    # # for sample testcase
+    # RecSys_total_input =[]
+    # with open('sample_input.txt',mode='r') as f:
+    #     for line in f:
+    #         RecSys_total_input.append([int(x) for x in line.split(',')])
+    # num_people=len(RecSys_total_input)
+    #
+    # genre_list =destint2str('2,3,4,7'.split(','))
 
     RecSys_total_input = data_sampling(RecSys_total_input,duration)
     print("\n변환된 user info는 다음과 같습니다.")
@@ -215,7 +215,6 @@ if __name__ == '__main__' :
     total_start = ti.time()
 
     progress_bar('Loading Dataset')
-    st1 = ti.time()
     ROOT_DIR = 'dataset'
     DEST_INFO_PATH = os.path.join(ROOT_DIR,'destination_id_name_genre_coordinate.pkl')
     PREICTED_CONGEST_PATH = os.path.join(ROOT_DIR,'congestion_1_2.pkl')
@@ -306,8 +305,10 @@ if __name__ == '__main__' :
             tmp_rank[dest[0]] = weight[0]*(batch_candidate-i)
         for i,dest in enumerate(sorted_congestion_ranking):
             tmp_rank[dest[0]] += weight[1]*(batch_candidate-i)
-        for i,dest in enumerate(sorted_congestion_ranking):
+        for i,dest in enumerate(sorted_distance_ranking):
             tmp_rank[dest[0]] += weight[2]*(batch_candidate-i)
+            tmp_rank[dest[0]] = round(tmp_rank[dest[0]],2)
+            # for median value
             val = total_dest.get(dest[0])
             if val is None:
                 total_dest[dest[0]]=[]
@@ -320,16 +321,18 @@ if __name__ == '__main__' :
     median_dest={}
     for k,v in total_dest.items():
         v.sort(reverse=True)
-        median_dest[k]=math.floor(v[len(v)//2])
+        median_dest[k]=v[len(v)//2]
 
     for i,day_ranking in enumerate(result_ranking):
         print(f'\n{i+1}일 째 추천 관광지')
         rank = 1
         for dest in day_ranking:
-            if median_dest[dest[0]]>dest[1]:
+            if median_dest[dest[0]]>=dest[1]:
                 continue
             print(f'{rank}등: {dest[0]}')
             rank+=1
+            if rank==11:
+                break
 
     end_time = ti.time()
     print(f'추천하는데 총 걸린 시간 : {end_time-total_start}')
